@@ -1,0 +1,34 @@
+# Conda Environment Setup Instructions
+#  - Using an environment.yml file with conda
+#  - Key Terminal Commands:
+#
+#    conda deactivate
+#    conda activate nameOfEnvironment
+#    conda install --name nameOfEnvironment black -y
+#
+#    conda env create -f environment.yml
+#    conda env update --file environment.yml --prune
+#    conda env export --name nameOfEnvironment > environment.yml
+#    conda env remove --name nameOfEnvironment
+#    conda env list
+
+
+name: LoanAndCreditCard_ETL_Capstone
+channels:
+  - anaconda
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - scipy
+  - jupyter
+  - notebook
+  - ipykernel
+  - ipython
+  - pip
+  - pyspark
