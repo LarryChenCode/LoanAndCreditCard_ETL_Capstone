@@ -32,3 +32,4 @@ dependencies:
   - ipython
   - pip
   - pyspark
+  - mysql-connector-python

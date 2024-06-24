@@ -1,2 +1,3 @@
 .env
-secret.py
+my_secrets.py
+my_secrets.cpython-311.pyc
