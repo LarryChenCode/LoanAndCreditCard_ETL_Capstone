@@ -92,6 +92,7 @@ customer_transformed_df = customer_df.withColumn("FIRST_NAME", expr("initcap(FIR
     .withColumn("MIDDLE_NAME", expr("lower(MIDDLE_NAME)")) \
     .withColumn("LAST_NAME", expr("initcap(LAST_NAME)")) \
     .withColumn("FULL_STREET_ADDRESS", concat_ws(" ", col("APT_NO"), col("STREET_NAME"))) \
+    .withColumn("CUST_PHONE", expr("concat('614', CUST_PHONE)")) \
     .withColumn("CUST_PHONE", expr("concat('(', substring(CUST_PHONE, 1, 3), ')', substring(CUST_PHONE, 4, 3), '-', substring(CUST_PHONE, 7, 4))"))
 # Remove "APT_NO" and "STREET_NAME" columns
 customer_transformed_df = customer_transformed_df.drop("APT_NO", "STREET_NAME")
