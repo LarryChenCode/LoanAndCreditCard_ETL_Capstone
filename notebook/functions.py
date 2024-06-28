@@ -4,6 +4,10 @@ from pyspark.sql.types import StructType, StructField, IntegerType, StringType, 
 from pyspark.sql.functions import col, expr, concat_ws, lpad
 import json
 import my_secrets
+import re
+from datetime import datetime
+import pandas as pd
+import os
 
 
 def create_database(connection, database_name):
@@ -100,3 +104,181 @@ def check_row_count(cursor, table_name, expected_count):
         print(f"Number of rows in {table_name} table is the same as the JSON file")
     else:
         print(f"Number of rows in {table_name} table is different from the JSON file")
+        
+
+
+
+def get_zip_code():
+    while True:
+        zip_code = input("Please enter a 5-digit zip code: ")
+        if re.match(r'^\d{5}$', zip_code):
+            return zip_code
+        else:
+            print("Invalid zip code format. Please enter exactly 5 digits.")
+
+def get_month_year():
+    while True:
+        month_year = input("Please enter a month and year in MM-YYYY format: ")
+        try:
+            datetime.strptime(month_year, "%m-%Y")
+            return month_year
+        except ValueError:
+            print("Invalid format. Please enter in MM-YYYY format.")
+
+def query_transactions(connection, zip_code, month_year):
+    month, year = month_year.split('-')
+    month_year_prefix = f"{year}{month.zfill(2)}"
+    
+    cursor = connection.cursor(dictionary=True)
+    
+    query = """
+    SELECT * FROM CDW_SAPP_CREDIT_CARD
+    WHERE BRANCH_CODE IN (
+        SELECT BRANCH_CODE FROM CDW_SAPP_BRANCH WHERE BRANCH_ZIP = %s
+    ) AND TIMEID LIKE %s
+    ORDER BY TIMEID DESC
+    """
+    
+    cursor.execute(query, (zip_code, f"{month_year_prefix}%"))
+    transactions = cursor.fetchall()
+    cursor.close()
+    
+    return transactions
+
+def display_transactions(transactions):
+    if transactions:
+        df = pd.DataFrame(transactions)
+        print(df)
+        return df
+    else:
+        print("No transactions found for the specified zip code and date range.")
+        return None
+    
+    
+    
+
+# Check the existing account details of a customer
+def check_account_details(connection, customer_ssn):
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM CDW_SAPP_CUSTOMER WHERE SSN = %s", (customer_ssn,))
+    account_details = cursor.fetchone()
+    cursor.close()
+    return account_details
+
+def get_customer_ssn():
+    while True:
+        ssn = input("Please enter the customer's SSN: ")
+        if re.match(r'^\d{9}$', ssn):
+            return ssn
+        else:
+            print("Invalid SSN format. Please enter exactly 9 digits.")
+
+# Modify the existing account details of a customer
+def modify_account_details(connection, customer_ssn):
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM CDW_SAPP_CUSTOMER WHERE SSN = %s", (customer_ssn,))
+    account_details = cursor.fetchone()
+    cursor.close()
+
+    if not account_details:
+        print("Customer not found.")
+        return
+
+    print("Current account details:")
+    for key, value in account_details.items():
+        print(f"{key}: {value}")
+
+    fields = ['FIRST_NAME', 'MIDDLE_NAME', 'LAST_NAME', 'APT_NO', 'STREET_NAME', 'CUST_CITY', 'CUST_STATE', 'CUST_COUNTRY', 'CUST_ZIP', 'CUST_PHONE', 'CUST_EMAIL']
+    new_details = {}
+
+    for field in fields:
+        update = input(f"Do you want to update {field} (current value: {account_details[field]})? (y/n): ")
+        if update.lower() == 'y':
+            new_value = input(f"Enter new value for {field}: ")
+            new_details[field] = new_value
+        else:
+            new_details[field] = account_details[field]
+
+    cursor = connection.cursor()
+    update_query = """
+    UPDATE CDW_SAPP_CUSTOMER
+    SET FIRST_NAME = %s, MIDDLE_NAME = %s, LAST_NAME = %s, 
+        APT_NO = %s, STREET_NAME = %s, CUST_CITY = %s, 
+        CUST_STATE = %s, CUST_COUNTRY = %s, CUST_ZIP = %s, 
+        CUST_PHONE = %s, CUST_EMAIL = %s
+    WHERE SSN = %s
+    """
+    cursor.execute(update_query, (
+        new_details['FIRST_NAME'], new_details['MIDDLE_NAME'], new_details['LAST_NAME'],
+        new_details['APT_NO'], new_details['STREET_NAME'], new_details['CUST_CITY'],
+        new_details['CUST_STATE'], new_details['CUST_COUNTRY'], new_details['CUST_ZIP'],
+        new_details['CUST_PHONE'], new_details['CUST_EMAIL'], customer_ssn
+    ))
+    connection.commit()
+    cursor.close()
+
+    print("Account details updated.")
+
+# Generate a monthly bill for a credit card number for a given month and year
+def generate_monthly_bill(connection, card_number, month_year):
+    month, year = month_year.split('-')
+    month_year_prefix = f"{year}{month.zfill(2)}"
+    
+    cursor = connection.cursor()
+    
+    query = """
+    SELECT SUM(TRANSACTION_VALUE) AS total_amount 
+    FROM CDW_SAPP_CREDIT_CARD
+    WHERE CREDIT_CARD_NO = %s AND TIMEID LIKE %s
+    """
+    
+    cursor.execute(query, (card_number, f"{month_year_prefix}%"))
+    total_amount = cursor.fetchone()[0]
+    cursor.close()
+    
+    return total_amount
+
+def get_credit_card_number():
+    while True:
+        card_number = input("Please enter the credit card number: ")
+        if re.match(r'^\d{16}$', card_number):
+            return card_number
+        else:
+            print("Invalid credit card number format. Please enter exactly 16 digits.")
+
+def get_month_year():
+    while True:
+        month_year = input("Please enter a month and year in MM-YYYY format: ")
+        try:
+            datetime.strptime(month_year, "%m-%Y")
+            return month_year
+        except ValueError:
+            print("Invalid format. Please enter in MM-YYYY format.")
+
+# Display the transactions made by a customer between two dates, ordered by year, month, and day in descending order
+def display_transactions_between_dates(connection, customer_ssn, start_date, end_date):
+    cursor = connection.cursor(dictionary=True)
+    
+    query = """
+    SELECT * FROM CDW_SAPP_CREDIT_CARD
+    WHERE CUST_SSN = %s AND TIMEID BETWEEN %s AND %s
+    ORDER BY TIMEID DESC
+    """
+    
+    start_timeid = start_date.replace("-", "")
+    end_timeid = end_date.replace("-", "")
+    
+    cursor.execute(query, (customer_ssn, start_timeid, end_timeid))
+    transactions = cursor.fetchall()
+    cursor.close()
+    
+    return transactions
+
+def get_date(prompt):
+    while True:
+        date_input = input(prompt)
+        try:
+            datetime.strptime(date_input, "%Y-%m-%d")
+            return date_input
+        except ValueError:
+            print("Invalid date format. Please enter in YYYY-MM-DD format.")
