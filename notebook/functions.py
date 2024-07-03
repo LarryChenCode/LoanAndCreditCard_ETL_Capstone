@@ -10,8 +10,10 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
+import requests
 
 
+# 1. Functional Requirements - Load Credit Card Database (SQL)
 def create_database(connection, database_name):
     cursor = connection.cursor()
     cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
@@ -109,7 +111,8 @@ def check_row_count(cursor, table_name, expected_count):
         
 
 
-
+# 2. Functional Requirements - Application Front-End
+# 2.1 Transaction Details Module
 def get_zip_code():
     while True:
         zip_code = input("Please enter a 5-digit zip code: ")
@@ -158,7 +161,7 @@ def display_transactions(transactions):
     
     
     
-
+# 2.2 Customer Details Module
 # Check the existing account details of a customer
 def check_account_details(connection, customer_ssn):
     cursor = connection.cursor(dictionary=True)
@@ -285,7 +288,7 @@ def get_date(prompt):
 
 
 
-
+# 3. Functional Requirements - Data Analysis and Visualization
 def plot_transaction_type_count(connection):
     query = """
     SELECT TRANSACTION_TYPE, COUNT(*) AS transaction_count
@@ -358,6 +361,162 @@ def plot_top_customers_by_transaction_sum(connection):
     output_dir = "visualizations"
     os.makedirs(output_dir, exist_ok=True)
     filename = os.path.join(output_dir, "top_10_customers_transaction_sum.png")
+    plt.savefig(filename)
+    plt.show()
+    print(f"Visualization saved as {filename}")
+
+
+# 4. Functional Requirements - LOAN Application Dataset
+def get_loan_data(api_url):
+    response = requests.get(api_url)
+    status_code = response.status_code
+    print(f"Status code of the API endpoint: {status_code}")
+    if status_code == 200:
+        loan_data = response.json()
+        return loan_data
+    else:
+        print(f"Failed to fetch data. Status code: {status_code}")
+        return None
+    
+def load_loan_data_to_rdbms(spark, loan_data, jdbc_url, connection_properties):
+    loan_schema = StructType([
+        StructField("Application_ID", StringType(), True),
+        StructField("Gender", StringType(), True),
+        StructField("Married", StringType(), True),
+        StructField("Dependents", StringType(), True),
+        StructField("Education", StringType(), True),
+        StructField("Self_Employed", StringType(), True),
+        StructField("Credit_History", IntegerType(), True),
+        StructField("Property_Area", StringType(), True),
+        StructField("Income", StringType(), True),
+        StructField("Application_Status", StringType(), True)
+    ])
+    
+    loan_df = spark.createDataFrame(loan_data, schema=loan_schema)
+    loan_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_loan_application", mode="overwrite", properties=connection_properties)
+    print("Loan data loaded into RDBMS")
+    
+def display_loan_data(loan_data):
+    loan_df = pd.DataFrame(loan_data)
+    print("\nLoan Data:")
+    print(loan_df)
+    
+
+# 5. Functional Requirements - Data Analysis and Visualization for Loan Application
+def plot_self_employed_approval_percentage(connection):
+    query = """
+    SELECT 
+           COUNT(*) AS total, 
+           SUM(CASE WHEN Application_Status = 'Y' THEN 1 ELSE 0 END) AS approved
+    FROM CDW_SAPP_loan_application
+    WHERE Self_Employed = 'Yes'
+    """
+    df = pd.read_sql(query, connection)
+    
+    # Calculate the approval percentage
+    df['approval_percentage'] = (df['approved'] / df['total']) * 100
+
+    # Print the counts
+    print("Self-Employed Applicants (Yes) Counts:")
+    print(f"Total Applications: {df['total'][0]}")
+    print(f"Approved Applications: {df['approved'][0]}")
+    print(f"Approval Percentage: {df['approval_percentage'][0]:.2f}%")
+    print()
+
+    # Create a DataFrame for plotting
+    plot_df = pd.DataFrame({
+        'Self_Employed': ['Yes'],
+        'approval_percentage': df['approval_percentage']
+    })
+
+    plt.figure(figsize=(8, 6))
+    sns.barplot(x='Self_Employed', y='approval_percentage', data=plot_df, palette='viridis')
+    plt.title('Approval Percentage for Self-Employed Applicants')
+    plt.xlabel('Self-Employed')
+    plt.ylabel('Approval Percentage')
+    plt.ylim(0, 100)  # Set y-axis limit to 100%
+    plt.tight_layout()
+
+    output_dir = "visualizations"
+    os.makedirs(output_dir, exist_ok=True)
+    filename = os.path.join(output_dir, "self_employed_approval_percentage.png")
+    plt.savefig(filename)
+    plt.show()
+    print(f"Visualization saved as {filename}")
+    
+def plot_married_male_rejection_percentage(connection):
+    query = """
+    SELECT Gender, Married, COUNT(*) AS total, 
+           SUM(CASE WHEN Application_Status = 'N' THEN 1 ELSE 0 END) AS rejected
+    FROM CDW_SAPP_loan_application
+    WHERE Gender = 'Male' AND Married = 'Yes'
+    GROUP BY Gender, Married
+    """
+    df = pd.read_sql(query, connection)
+    df['rejection_percentage'] = (df['rejected'] / df['total']) * 100
+
+    plt.figure(figsize=(8, 6))
+    sns.barplot(x='Married', y='rejection_percentage', data=df, palette='viridis')
+    plt.title('Rejection Percentage for Married Male Applicants')
+    plt.xlabel('Married')
+    plt.ylabel('Rejection Percentage')
+    plt.tight_layout()
+
+    output_dir = "visualizations"
+    os.makedirs(output_dir, exist_ok=True)
+    filename = os.path.join(output_dir, "married_male_rejection_percentage.png")
+    plt.savefig(filename)
+    plt.show()
+    print(f"Visualization saved as {filename}")
+
+def plot_top_three_months_transaction_volume(connection):
+    query = """
+    SELECT SUBSTRING(TIMEID, 1, 6) AS YearMonth, COUNT(*) AS transaction_count
+    FROM CDW_SAPP_CREDIT_CARD
+    GROUP BY YearMonth
+    ORDER BY transaction_count DESC
+    LIMIT 3
+    """
+    df = pd.read_sql(query, connection)
+
+    # Convert YearMonth to readable format (YYYY-MM)
+    df['YearMonth'] = df['YearMonth'].apply(lambda x: f"{x[:4]}-{x[4:6]}")
+
+    plt.figure(figsize=(8, 6))
+    sns.barplot(x='YearMonth', y='transaction_count', data=df, palette='viridis')
+    plt.title('Top 3 Months with Largest Transaction Volume')
+    plt.xlabel('Year-Month')
+    plt.ylabel('Transaction Volume')
+    plt.tight_layout()
+
+    output_dir = "visualizations"
+    os.makedirs(output_dir, exist_ok=True)
+    filename = os.path.join(output_dir, "top_three_months_transaction_volume.png")
+    plt.savefig(filename)
+    plt.show()
+    print(f"Visualization saved as {filename}")
+
+def plot_highest_healthcare_transactions_branch(connection):
+    query = """
+    SELECT BRANCH_CODE, SUM(TRANSACTION_VALUE) AS total_value
+    FROM CDW_SAPP_CREDIT_CARD
+    WHERE TRANSACTION_TYPE = 'Healthcare'
+    GROUP BY BRANCH_CODE
+    ORDER BY total_value DESC
+    LIMIT 1
+    """
+    df = pd.read_sql(query, connection)
+
+    plt.figure(figsize=(8, 6))
+    sns.barplot(x='BRANCH_CODE', y='total_value', data=df, palette='viridis')
+    plt.title('Branch with Highest Total Value of Healthcare Transactions')
+    plt.xlabel('Branch Code')
+    plt.ylabel('Total Transaction Value ($)')
+    plt.tight_layout()
+
+    output_dir = "visualizations"
+    os.makedirs(output_dir, exist_ok=True)
+    filename = os.path.join(output_dir, "highest_healthcare_transactions_branch.png")
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
