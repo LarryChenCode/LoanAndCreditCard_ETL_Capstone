@@ -8,6 +8,8 @@ import re
 from datetime import datetime
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def create_database(connection, database_name):
@@ -168,6 +170,7 @@ def check_account_details(connection, customer_ssn):
 def get_customer_ssn():
     while True:
         ssn = input("Please enter the customer's SSN: ")
+        print('\n')
         if re.match(r'^\d{9}$', ssn):
             return ssn
         else:
@@ -184,11 +187,7 @@ def modify_account_details(connection, customer_ssn):
         print("Customer not found.")
         return
 
-    print("Current account details:")
-    for key, value in account_details.items():
-        print(f"{key}: {value}")
-
-    fields = ['FIRST_NAME', 'MIDDLE_NAME', 'LAST_NAME', 'APT_NO', 'STREET_NAME', 'CUST_CITY', 'CUST_STATE', 'CUST_COUNTRY', 'CUST_ZIP', 'CUST_PHONE', 'CUST_EMAIL']
+    fields = ['FIRST_NAME', 'MIDDLE_NAME', 'LAST_NAME', 'FULL_STREET_ADDRESS', 'CUST_CITY', 'CUST_STATE', 'CUST_COUNTRY', 'CUST_ZIP', 'CUST_PHONE', 'CUST_EMAIL']
     new_details = {}
 
     for field in fields:
@@ -203,14 +202,14 @@ def modify_account_details(connection, customer_ssn):
     update_query = """
     UPDATE CDW_SAPP_CUSTOMER
     SET FIRST_NAME = %s, MIDDLE_NAME = %s, LAST_NAME = %s, 
-        APT_NO = %s, STREET_NAME = %s, CUST_CITY = %s, 
+        FULL_STREET_ADDRESS = %s, CUST_CITY = %s, 
         CUST_STATE = %s, CUST_COUNTRY = %s, CUST_ZIP = %s, 
         CUST_PHONE = %s, CUST_EMAIL = %s
     WHERE SSN = %s
     """
     cursor.execute(update_query, (
         new_details['FIRST_NAME'], new_details['MIDDLE_NAME'], new_details['LAST_NAME'],
-        new_details['APT_NO'], new_details['STREET_NAME'], new_details['CUST_CITY'],
+        new_details['FULL_STREET_ADDRESS'], new_details['CUST_CITY'],
         new_details['CUST_STATE'], new_details['CUST_COUNTRY'], new_details['CUST_ZIP'],
         new_details['CUST_PHONE'], new_details['CUST_EMAIL'], customer_ssn
     ))
@@ -282,3 +281,83 @@ def get_date(prompt):
             return date_input
         except ValueError:
             print("Invalid date format. Please enter in YYYY-MM-DD format.")
+
+
+
+
+
+def plot_transaction_type_count(connection):
+    query = """
+    SELECT TRANSACTION_TYPE, COUNT(*) AS transaction_count
+    FROM CDW_SAPP_CREDIT_CARD
+    GROUP BY TRANSACTION_TYPE
+    ORDER BY transaction_count DESC
+    """
+    df = pd.read_sql(query, connection)
+
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x='TRANSACTION_TYPE', y='transaction_count', data=df, palette='viridis')
+    plt.title('Transaction Count by Transaction Type')
+    plt.xlabel('Transaction Type')
+    plt.ylabel('Transaction Count')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    
+    output_dir = "visualizations"
+    os.makedirs(output_dir, exist_ok=True)
+    filename = os.path.join(output_dir, "transaction_type_count.png")
+    plt.savefig(filename)
+    plt.show()
+    print(f"Visualization saved as {filename}")
+    
+    
+def plot_top_states_with_customers(connection):
+    query = """
+    SELECT CUST_STATE, COUNT(*) AS customer_count
+    FROM CDW_SAPP_CUSTOMER
+    GROUP BY CUST_STATE
+    ORDER BY customer_count DESC
+    LIMIT 10
+    """
+    df = pd.read_sql(query, connection)
+
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x='CUST_STATE', y='customer_count', data=df, palette='viridis')
+    plt.title('Top 10 States with the Highest Number of Customers')
+    plt.xlabel('State')
+    plt.ylabel('Customer Count')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    
+    output_dir = "visualizations"
+    os.makedirs(output_dir, exist_ok=True)
+    filename = os.path.join(output_dir, "top_10_states_customers.png")
+    plt.savefig(filename)
+    plt.show()
+    print(f"Visualization saved as {filename}")
+
+
+def plot_top_customers_by_transaction_sum(connection):
+    query = """
+    SELECT CUST_SSN, SUM(TRANSACTION_VALUE) AS total_transaction_sum
+    FROM CDW_SAPP_CREDIT_CARD
+    GROUP BY CUST_SSN
+    ORDER BY total_transaction_sum DESC
+    LIMIT 10
+    """
+    df = pd.read_sql(query, connection)
+
+    plt.figure(figsize=(10, 6))
+    sns.barplot(x='CUST_SSN', y='total_transaction_sum', data=df, palette='viridis')
+    plt.title('Top 10 Customers by Transaction Sum')
+    plt.xlabel('Customer SSN')
+    plt.ylabel('Total Transaction Sum ($)')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    
+    output_dir = "visualizations"
+    os.makedirs(output_dir, exist_ok=True)
+    filename = os.path.join(output_dir, "top_10_customers_transaction_sum.png")
+    plt.savefig(filename)
+    plt.show()
+    print(f"Visualization saved as {filename}")
