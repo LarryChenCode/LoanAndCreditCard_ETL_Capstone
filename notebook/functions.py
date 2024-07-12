@@ -14,17 +14,18 @@ import requests
 
 
 # 1. Functional Requirements - Load Credit Card Database (SQL)
+# Create a connection to the MySQL database
 def create_database(connection, database_name):
     cursor = connection.cursor()
     cursor.execute(f"CREATE DATABASE IF NOT EXISTS {database_name}")
     cursor.close()
     print(f"Database '{database_name}' created")
 
-
+# Initialize spark session
 def initialize_spark_session(app_name):
     return SparkSession.builder.appName(app_name).getOrCreate()
 
-
+# Define the schema for the JSON files
 def get_schema():
     branch_schema = StructType([
         StructField("BRANCH_CODE", IntegerType(), True),
@@ -68,23 +69,23 @@ def get_schema():
 
     return branch_schema, credit_schema, customer_schema
 
-
+# Read JSON files into Spark DataFrames
 def read_json_to_df(spark, schema, file_path):
     return spark.read.schema(schema).option("multiline", "true").json(file_path)
 
-
+# Load data into MySQL database
 def transform_and_load_branch_data(branch_df, jdbc_url, connection_properties):
     branch_transformed_df = branch_df.withColumn("BRANCH_ZIP", lpad(col("BRANCH_ZIP").cast("string"), 5, "0")) \
         .withColumn("BRANCH_PHONE", expr("concat('(', substring(BRANCH_PHONE, 1, 3), ')', substring(BRANCH_PHONE, 4, 3), '-', substring(BRANCH_PHONE, 7, 4))"))
     branch_transformed_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_BRANCH", mode="overwrite", properties=connection_properties)
 
-
+# Transform and load credit card data
 def transform_and_load_credit_card_data(credit_card_df, jdbc_url, connection_properties):
     credit_card_transformed_df = credit_card_df.withColumn("TIMEID", concat_ws("", col("YEAR"), lpad(col("MONTH").cast("string"), 2, "0"), lpad(col("DAY").cast("string"), 2, "0")))
     credit_card_transformed_df = credit_card_transformed_df.drop("DAY", "MONTH", "YEAR")
     credit_card_transformed_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_CREDIT_CARD", mode="overwrite", properties=connection_properties)
 
-
+# Transform and load customer data
 def transform_and_load_customer_data(customer_df, jdbc_url, connection_properties):
     customer_transformed_df = customer_df.withColumn("FIRST_NAME", expr("initcap(FIRST_NAME)")) \
         .withColumn("MIDDLE_NAME", expr("lower(MIDDLE_NAME)")) \
@@ -95,12 +96,12 @@ def transform_and_load_customer_data(customer_df, jdbc_url, connection_propertie
     customer_transformed_df = customer_transformed_df.drop("APT_NO", "STREET_NAME")
     customer_transformed_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_CUSTOMER", mode="overwrite", properties=connection_properties)
 
-
+# Load Json file
 def load_json(file_path):
     with open(file_path, "r") as file:
         return json.load(file)
 
-
+# Check the number of rows in a table
 def check_row_count(cursor, table_name, expected_count):
     cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
     result = cursor.fetchone()
@@ -108,11 +109,11 @@ def check_row_count(cursor, table_name, expected_count):
         print(f"Number of rows in {table_name} table is the same as the JSON file")
     else:
         print(f"Number of rows in {table_name} table is different from the JSON file")
-        
 
 
 # 2. Functional Requirements - Application Front-End
 # 2.1 Transaction Details Module
+# Get the zip code from the user
 def get_zip_code():
     while True:
         zip_code = input("Please enter a 5-digit zip code: ")
@@ -121,6 +122,7 @@ def get_zip_code():
         else:
             print("Invalid zip code format. Please enter exactly 5 digits.")
 
+# Get the month and year in MM-YYYY format
 def get_month_year():
     while True:
         month_year = input("Please enter a month and year in MM-YYYY format: ")
@@ -130,6 +132,7 @@ def get_month_year():
         except ValueError:
             print("Invalid format. Please enter in MM-YYYY format.")
 
+# Query transactions based on zip code and month-year
 def query_transactions(connection, zip_code, month_year):
     month, year = month_year.split('-')
     month_year_prefix = f"{year}{month.zfill(2)}"
@@ -150,6 +153,7 @@ def query_transactions(connection, zip_code, month_year):
     
     return transactions
 
+# Display transactions in a DataFrame
 def display_transactions(transactions):
     if transactions:
         df = pd.DataFrame(transactions)
@@ -158,9 +162,8 @@ def display_transactions(transactions):
     else:
         print("No transactions found for the specified zip code and date range.")
         return None
-    
-    
-    
+
+
 # 2.2 Customer Details Module
 # Check the existing account details of a customer
 def check_account_details(connection, customer_ssn):
@@ -170,6 +173,7 @@ def check_account_details(connection, customer_ssn):
     cursor.close()
     return account_details
 
+# Get the customer's SSN
 def get_customer_ssn():
     while True:
         ssn = input("Please enter the customer's SSN: ")
@@ -240,6 +244,7 @@ def generate_monthly_bill(connection, card_number, month_year):
     
     return total_amount
 
+# Get the credit card number from the user
 def get_credit_card_number():
     while True:
         card_number = input("Please enter the credit card number: ")
@@ -247,15 +252,6 @@ def get_credit_card_number():
             return card_number
         else:
             print("Invalid credit card number format. Please enter exactly 16 digits.")
-
-def get_month_year():
-    while True:
-        month_year = input("Please enter a month and year in MM-YYYY format: ")
-        try:
-            datetime.strptime(month_year, "%m-%Y")
-            return month_year
-        except ValueError:
-            print("Invalid format. Please enter in MM-YYYY format.")
 
 # Display the transactions made by a customer between two dates, ordered by year, month, and day in descending order
 def display_transactions_between_dates(connection, customer_ssn, start_date, end_date):
@@ -276,6 +272,7 @@ def display_transactions_between_dates(connection, customer_ssn, start_date, end
     
     return transactions
 
+# Get the date from the user
 def get_date(prompt):
     while True:
         date_input = input(prompt)
@@ -286,9 +283,8 @@ def get_date(prompt):
             print("Invalid date format. Please enter in YYYY-MM-DD format.")
 
 
-
-
 # 3. Functional Requirements - Data Analysis and Visualization
+# Plot the transaction count by transaction type
 def plot_transaction_type_count(connection):
     query = """
     SELECT TRANSACTION_TYPE, COUNT(*) AS transaction_count
@@ -313,7 +309,7 @@ def plot_transaction_type_count(connection):
     plt.show()
     print(f"Visualization saved as {filename}")
     
-    
+# Plot the total transaction value by branch
 def plot_top_states_with_customers(connection):
     query = """
     SELECT CUST_STATE, COUNT(*) AS customer_count
@@ -339,7 +335,7 @@ def plot_top_states_with_customers(connection):
     plt.show()
     print(f"Visualization saved as {filename}")
 
-
+# Plot the top 10 customers by transaction sum
 def plot_top_customers_by_transaction_sum(connection):
     query = """
     SELECT CUST_SSN, SUM(TRANSACTION_VALUE) AS total_transaction_sum
@@ -367,6 +363,7 @@ def plot_top_customers_by_transaction_sum(connection):
 
 
 # 4. Functional Requirements - LOAN Application Dataset
+# Get the loan application data from the API
 def get_loan_data(api_url):
     response = requests.get(api_url)
     status_code = response.status_code
@@ -377,7 +374,8 @@ def get_loan_data(api_url):
     else:
         print(f"Failed to fetch data. Status code: {status_code}")
         return None
-    
+
+# Load the loan application data into the RDBMS
 def load_loan_data_to_rdbms(spark, loan_data, jdbc_url, connection_properties):
     loan_schema = StructType([
         StructField("Application_ID", StringType(), True),
@@ -395,7 +393,8 @@ def load_loan_data_to_rdbms(spark, loan_data, jdbc_url, connection_properties):
     loan_df = spark.createDataFrame(loan_data, schema=loan_schema)
     loan_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_loan_application", mode="overwrite", properties=connection_properties)
     print("Loan data loaded into RDBMS")
-    
+
+# Display the loan application data
 def display_loan_data(loan_data):
     loan_df = pd.DataFrame(loan_data)
     print("\nLoan Data:")
@@ -403,6 +402,7 @@ def display_loan_data(loan_data):
     
 
 # 5. Functional Requirements - Data Analysis and Visualization for Loan Application
+# Plot the approval percentage of self-employed applicants
 def plot_self_employed_approval_percentage(connection):
     query = """
     SELECT 
@@ -443,7 +443,8 @@ def plot_self_employed_approval_percentage(connection):
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
-    
+
+# Plot the rejection percentage for married male applicants
 def plot_married_male_rejection_percentage(connection):
     query = """
     SELECT Gender, Married, COUNT(*) AS total, 
@@ -469,6 +470,7 @@ def plot_married_male_rejection_percentage(connection):
     plt.show()
     print(f"Visualization saved as {filename}")
 
+# Plot top three property areas with the highest transactions count
 def plot_top_three_months_transaction_volume(connection):
     query = """
     SELECT SUBSTRING(TIMEID, 1, 6) AS YearMonth, COUNT(*) AS transaction_count
@@ -496,6 +498,7 @@ def plot_top_three_months_transaction_volume(connection):
     plt.show()
     print(f"Visualization saved as {filename}")
 
+# Plot the highest total value of healthcare transactions by branch
 def plot_highest_healthcare_transactions_branch(connection):
     query = """
     SELECT BRANCH_CODE, SUM(TRANSACTION_VALUE) AS total_value
