@@ -33,4 +33,4 @@ dependencies:
   - pyspark
   - findspark
   - mysql-connector-python
-  - mysql-connector-java
+  - fpdf

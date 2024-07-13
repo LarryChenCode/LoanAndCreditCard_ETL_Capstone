@@ -1,7 +1,7 @@
 import mysql.connector
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType, TimestampType
-from pyspark.sql.functions import col, expr, concat_ws, lpad
+from pyspark.sql.functions import col, expr, concat_ws, lpad, regexp_replace
 import json
 import my_secrets
 import re
@@ -13,6 +13,9 @@ import seaborn as sns
 import requests
 import subprocess
 import os
+import re
+from fpdf import FPDF
+
 
 # 1. Functional Requirements - Load Credit Card Database (SQL)
 # Create a connection to the MySQL database
@@ -119,7 +122,8 @@ def transform_and_load_customer_data(customer_df, jdbc_url, connection_propertie
         .withColumn("LAST_NAME", expr("initcap(LAST_NAME)")) \
         .withColumn("FULL_STREET_ADDRESS", concat_ws(" ", col("APT_NO"), col("STREET_NAME"))) \
         .withColumn("CUST_PHONE", expr("concat('614', CUST_PHONE)")) \
-        .withColumn("CUST_PHONE", expr("concat('(', substring(CUST_PHONE, 1, 3), ')', substring(CUST_PHONE, 4, 3), '-', substring(CUST_PHONE, 7, 4))"))
+        .withColumn("CUST_PHONE", expr("concat('(', substring(CUST_PHONE, 1, 3), ')', substring(CUST_PHONE, 4, 3), '-', substring(CUST_PHONE, 7, 4))")) \
+        .withColumn("CUST_CITY", regexp_replace(col("CUST_CITY"), r"(?<=[a-z])(?=[A-Z])", " "))
     customer_transformed_df = customer_transformed_df.drop("APT_NO", "STREET_NAME")
     customer_transformed_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_CUSTOMER", mode="overwrite", properties=connection_properties)
     print("CDW_SAPP_CUSTOMER table loaded successfully")
@@ -195,6 +199,11 @@ def query_transactions(connection, zip_code, month_year):
     transactions = cursor.fetchall()
     cursor.close()
     
+    if not transactions:
+        print("No transactions found for the specified zip code and date range.")
+        input("Press any key to continue...")
+        return None
+    
     return transactions
 
 # Display transactions in a DataFrame
@@ -204,7 +213,6 @@ def display_transactions(transactions):
         print(df)
         return df
     else:
-        print("No transactions found for the specified zip code and date range.")
         return None
 
 
@@ -227,6 +235,96 @@ def get_customer_ssn():
         else:
             print("Invalid SSN format. Please enter exactly 9 digits.")
 
+# # Modify the existing account details of a customer
+# def modify_account_details(connection, customer_ssn):
+#     cursor = connection.cursor(dictionary=True)
+#     cursor.execute("SELECT * FROM CDW_SAPP_CUSTOMER WHERE SSN = %s", (customer_ssn,))
+#     account_details = cursor.fetchone()
+#     cursor.close()
+
+#     if not account_details:
+#         print("Customer not found.")
+#         input("Press any key to continue...")
+#         return
+
+#     fields = ['FIRST_NAME', 'MIDDLE_NAME', 'LAST_NAME', 'FULL_STREET_ADDRESS', 'CUST_CITY', 'CUST_STATE', 'CUST_COUNTRY', 'CUST_ZIP', 'CUST_PHONE', 'CUST_EMAIL']
+#     new_details = {}
+
+#     for field in fields:
+#         update = input(f"Do you want to update {field} (current value: {account_details[field]})? (y/n): ")
+#         if update.lower() == 'y':
+#             new_value = input(f"Enter new value for {field}: ")
+#             if field == 'CUST_PHONE':
+#                 while not validate_phone_number(new_value):
+#                     new_value = input("Invalid phone number format. Please enter a 10-digit phone number: ")
+#                 new_value = format_phone_number(new_value)
+#             elif field == 'CUST_CITY':
+#                 new_value = format_city_name(new_value)
+#             elif field == 'CUST_ZIP':
+#                 while not validate_zip_code(new_value):
+#                     new_value = input("Invalid zip code format. Please enter a 5-digit zip code: ")
+#             elif field == 'CUST_EMAIL':
+#                 while not validate_email(new_value):
+#                     new_value = input("Invalid email format. Please enter an email in the format xxxx@xxx.xxx: ")
+#             new_details[field] = new_value
+#         else:
+#             new_details[field] = account_details[field]
+
+#     print("\nThe following information will be updated:")
+#     for field, value in new_details.items():
+#         print(f"{field}: {value}")
+    
+#     confirm = input("\nIs the above information correct? (yes/no): ").strip().lower()
+#     if confirm == 'yes':
+#         cursor = connection.cursor()
+#         update_query = """
+#         UPDATE CDW_SAPP_CUSTOMER
+#         SET FIRST_NAME = %s, MIDDLE_NAME = %s, LAST_NAME = %s, 
+#             FULL_STREET_ADDRESS = %s, CUST_CITY = %s, 
+#             CUST_STATE = %s, CUST_COUNTRY = %s, CUST_ZIP = %s, 
+#             CUST_PHONE = %s, CUST_EMAIL = %s, LAST_UPDATED = NOW()
+#         WHERE SSN = %s
+#         """
+#         cursor.execute(update_query, (
+#             new_details['FIRST_NAME'], new_details['MIDDLE_NAME'], new_details['LAST_NAME'],
+#             new_details['FULL_STREET_ADDRESS'], new_details['CUST_CITY'],
+#             new_details['CUST_STATE'], new_details['CUST_COUNTRY'], new_details['CUST_ZIP'],
+#             new_details['CUST_PHONE'], new_details['CUST_EMAIL'],
+#             customer_ssn
+#         ))
+#         connection.commit()
+#         cursor.close()
+
+#         print("Account details updated.")
+#     else:
+#         print("Please run the update process again to correct the information.")
+
+#     input("Press any key to continue...")
+
+# def format_phone_number(phone_number):
+#     # Remove any non-digit characters
+#     digits = re.sub(r'\D', '', phone_number)
+#     # Format the digits as (XXX)XXX-XXXX
+#     formatted_number = f"({digits[:3]}){digits[3:6]}-{digits[6:]}"
+#     return formatted_number
+
+# def validate_phone_number(phone_number):
+#     digits = re.sub(r'\D', '', phone_number)
+#     return len(digits) == 10
+
+# def validate_zip_code(zip_code):
+#     return re.match(r'^\d{5}$', zip_code) is not None
+
+# def validate_email(email):
+#     return re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email) is not None
+
+# def format_city_name(city_name):
+#     # Insert a space before each capital letter in the middle of the word
+#     formatted_city = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', city_name)
+#     return formatted_city
+
+
+
 # Modify the existing account details of a customer
 def modify_account_details(connection, customer_ssn):
     cursor = connection.cursor(dictionary=True)
@@ -236,57 +334,179 @@ def modify_account_details(connection, customer_ssn):
 
     if not account_details:
         print("Customer not found.")
+        input("Press any key to continue...")
         return
 
     fields = ['FIRST_NAME', 'MIDDLE_NAME', 'LAST_NAME', 'FULL_STREET_ADDRESS', 'CUST_CITY', 'CUST_STATE', 'CUST_COUNTRY', 'CUST_ZIP', 'CUST_PHONE', 'CUST_EMAIL']
-    new_details = {}
 
-    for field in fields:
-        update = input(f"Do you want to update {field} (current value: {account_details[field]})? (y/n): ")
-        if update.lower() == 'y':
+    while True:
+        new_details = account_details.copy()
+        while True:
+            print("\nSelect the field you want to update:")
+            for idx, field in enumerate(fields, 1):
+                print(f"{idx}. {field} (current value: {account_details[field]})")
+
+            choice = input("\nEnter the number of the field you want to update (or 'done' to finish): ").strip().lower()
+            if choice == 'done':
+                break
+
+            if not choice.isdigit() or int(choice) < 1 or int(choice) > len(fields):
+                print("Invalid choice. Please enter a valid number.")
+                continue
+
+            field = fields[int(choice) - 1]
             new_value = input(f"Enter new value for {field}: ")
+
+            if field == 'CUST_PHONE':
+                while not validate_phone_number(new_value):
+                    new_value = input("Invalid phone number format. Please enter a 10-digit phone number: ")
+                new_value = format_phone_number(new_value)
+            elif field == 'CUST_CITY':
+                new_value = format_city_name(new_value)
+            elif field == 'CUST_ZIP':
+                while not validate_zip_code(new_value):
+                    new_value = input("Invalid zip code format. Please enter a 5-digit zip code: ")
+            elif field == 'CUST_EMAIL':
+                while not validate_email(new_value):
+                    new_value = input("Invalid email format. Please enter an email in the format xxxx@xxx.xxx: ")
+
             new_details[field] = new_value
+
+        print("\nThe following information will be updated:")
+        for field, value in new_details.items():
+            print(f"{field}: {value}")
+
+        confirm = input("\nIs the above information correct? (yes/no): ").strip().lower()
+        if confirm == 'yes':
+            cursor = connection.cursor()
+            update_query = """
+            UPDATE CDW_SAPP_CUSTOMER
+            SET FIRST_NAME = %s, MIDDLE_NAME = %s, LAST_NAME = %s, 
+                FULL_STREET_ADDRESS = %s, CUST_CITY = %s, 
+                CUST_STATE = %s, CUST_COUNTRY = %s, CUST_ZIP = %s, 
+                CUST_PHONE = %s, CUST_EMAIL = %s, LAST_UPDATED = NOW()
+            WHERE SSN = %s
+            """
+            cursor.execute(update_query, (
+                new_details['FIRST_NAME'], new_details['MIDDLE_NAME'], new_details['LAST_NAME'],
+                new_details['FULL_STREET_ADDRESS'], new_details['CUST_CITY'],
+                new_details['CUST_STATE'], new_details['CUST_COUNTRY'], new_details['CUST_ZIP'],
+                new_details['CUST_PHONE'], new_details['CUST_EMAIL'],
+                customer_ssn
+            ))
+            connection.commit()
+            cursor.close()
+
+            print("Account details updated.")
+            break
         else:
-            new_details[field] = account_details[field]
+            print("Please select the fields again to correct the information.")
+            input("Press any key to continue...")
 
-    cursor = connection.cursor()
-    update_query = """
-    UPDATE CDW_SAPP_CUSTOMER
-    SET FIRST_NAME = %s, MIDDLE_NAME = %s, LAST_NAME = %s, 
-        FULL_STREET_ADDRESS = %s, CUST_CITY = %s, 
-        CUST_STATE = %s, CUST_COUNTRY = %s, CUST_ZIP = %s, 
-        CUST_PHONE = %s, CUST_EMAIL = %s
-    WHERE SSN = %s
-    """
-    cursor.execute(update_query, (
-        new_details['FIRST_NAME'], new_details['MIDDLE_NAME'], new_details['LAST_NAME'],
-        new_details['FULL_STREET_ADDRESS'], new_details['CUST_CITY'],
-        new_details['CUST_STATE'], new_details['CUST_COUNTRY'], new_details['CUST_ZIP'],
-        new_details['CUST_PHONE'], new_details['CUST_EMAIL'], customer_ssn
-    ))
-    connection.commit()
-    cursor.close()
+    input("Press any key to continue...")
 
-    print("Account details updated.")
+def format_phone_number(phone_number):
+    # Remove any non-digit characters
+    digits = re.sub(r'\D', '', phone_number)
+    # Format the digits as (XXX)XXX-XXXX
+    formatted_number = f"({digits[:3]}){digits[3:6]}-{digits[6:]}"
+    return formatted_number
 
-# Generate a monthly bill for a credit card number for a given month and year
+def validate_phone_number(phone_number):
+    digits = re.sub(r'\D', '', phone_number)
+    return len(digits) == 10
+
+def validate_zip_code(zip_code):
+    return re.match(r'^\d{5}$', zip_code) is not None
+
+def validate_email(email):
+    return re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email) is not None
+
+def format_city_name(city_name):
+    # Insert a space before each capital letter in the middle of the word
+    formatted_city = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', city_name)
+    return formatted_city
+
+
+
+
+
+# Generate a monthly bill for a credit card
 def generate_monthly_bill(connection, card_number, month_year):
     month, year = month_year.split('-')
     month_year_prefix = f"{year}{month.zfill(2)}"
     
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)
     
     query = """
-    SELECT SUM(TRANSACTION_VALUE) AS total_amount 
+    SELECT * 
     FROM CDW_SAPP_CREDIT_CARD
     WHERE CREDIT_CARD_NO = %s AND TIMEID LIKE %s
+    ORDER BY TIMEID DESC
     """
     
     cursor.execute(query, (card_number, f"{month_year_prefix}%"))
-    total_amount = cursor.fetchone()[0]
+    transactions = cursor.fetchall()
     cursor.close()
     
+    if not transactions:
+        print("No transactions found for the specified credit card and date range.")
+        input("Press any key to continue...")
+        return None
+    
+    total_amount = sum(transaction['TRANSACTION_VALUE'] for transaction in transactions)
+    
+    # Create a DataFrame for the transactions
+    df = pd.DataFrame(transactions)
+    
+    # Create PDF
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    pdf.cell(200, 10, txt=f"Monthly Bill for Credit Card: {card_number}", ln=True, align='C')
+    pdf.cell(200, 10, txt=f"Month-Year: {month_year}", ln=True, align='C')
+    pdf.cell(200, 10, txt=f"Total Amount: ${total_amount:.2f}", ln=True, align='C')
+    
+    pdf.ln(10)
+    pdf.cell(200, 10, txt="Transactions:", ln=True, align='L')
+    pdf.ln(10)
+
+    # Add table header
+    col_width = pdf.w / 4.5
+    row_height = pdf.font_size
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(col_width, row_height * 2, "Transaction ID", border=1)
+    pdf.cell(col_width, row_height * 2, "Transaction Date", border=1)
+    pdf.cell(col_width, row_height * 2, "Transaction Value", border=1)
+    pdf.cell(col_width, row_height * 2, "Transaction Type", border=1)
+    pdf.ln(row_height * 2)
+
+    # Add table rows
+    pdf.set_font("Arial", size=10)
+    for transaction in transactions:
+        pdf.cell(col_width, row_height * 2, str(transaction['TRANSACTION_ID']), border=1)
+        pdf.cell(col_width, row_height * 2, transaction['TIMEID'], border=1)
+        pdf.cell(col_width, row_height * 2, f"${transaction['TRANSACTION_VALUE']:.2f}", border=1)
+        pdf.cell(col_width, row_height * 2, transaction['TRANSACTION_TYPE'], border=1)
+        pdf.ln(row_height * 2)
+
+    # Create directories if they don't exist
+    output_dir = "../report/billing_report_cardnumber_monthyear"
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Save PDF
+    pdf_filename = os.path.join(output_dir, f"billing_{card_number}_{month_year.replace('-', '')}.pdf")
+    pdf.output(pdf_filename)
+    print(f"Monthly bill exported to {pdf_filename}")
+
+    # Save CSV
+    csv_filename = os.path.join(output_dir, f"billing_{card_number}_{month_year.replace('-', '')}.csv")
+    df.to_csv(csv_filename, index=False)
+    print(f"Monthly bill transactions exported to {csv_filename}")
+
     return total_amount
+
 
 # Get the credit card number from the user
 def get_credit_card_number():
@@ -314,6 +534,11 @@ def display_transactions_between_dates(connection, customer_ssn, start_date, end
     transactions = cursor.fetchall()
     cursor.close()
     
+    if not transactions:
+        print("No transactions found for the specified date range.")
+        input("Press any key to continue...")
+        return None
+    
     return transactions
 
 # Get the date from the user
@@ -325,6 +550,124 @@ def get_date(prompt):
             return date_input
         except ValueError:
             print("Invalid date format. Please enter in YYYY-MM-DD format.")
+
+# 2.3 Create a Main Menu
+# Define the connection to the MySQL database
+def define_connection_with_db():
+    connection = mysql.connector.connect(
+        host="localhost",
+        user=my_secrets.mysql_username,
+        password=my_secrets.mysql_password,
+        database="creditcard_capstone"  # Ensure the correct database is selected
+    )
+    print("Connected to MySQL")
+    return connection
+
+# Create transaction details module
+def transaction_details_module(connection):
+    first_time = True
+    while True:
+        if not first_time:
+            continue_choice = input("Would you like to continue? (y/n): ").strip().lower()
+            if continue_choice == 'n':
+                print("Returning to main menu...")
+                break
+            elif continue_choice != 'y':
+                print("Invalid choice. Please enter 'y' for yes or 'n' for no. (only lower characters)")
+                continue
+
+        zip_code = get_zip_code()
+        if zip_code is None:
+            return  # Exit to main menu if 'exit' is entered
+        month_year = get_month_year()
+        if month_year is None:
+            return  # Exit to main menu if 'exit' is entered
+        transactions = query_transactions(connection, zip_code, month_year)
+        df = display_transactions(transactions)
+
+        if df is not None:
+            output_dir = "../report/transactions_report_zipcode_MMYYYY"
+            os.makedirs(output_dir, exist_ok=True)
+            
+            csv_filename = os.path.join(output_dir, f"transactions_{zip_code}_{month_year.replace('-', '')}.csv")
+            df.to_csv(csv_filename, index=False)
+            print(f"Transactions exported to {csv_filename}")
+        else:
+            print("No transactions found for the specified zip code and date range.")
+        
+        first_time = False  # From now on, ask if the user wants to continue
+
+
+# Create customer details module
+def customer_details_module(connection):
+    while True:
+        print("\nCustomer Details Module:")
+        print("> 1. Check account details")
+        print("> 2. Modify account details")
+        print("> 3. Generate monthly bill")
+        print("> 4. Display transactions between dates")
+        print("> 5. Exit")
+        choice = input("Enter your choice (1-5): ")
+
+        if choice == '1':
+            customer_ssn = get_customer_ssn()
+            account_details = check_account_details(connection, customer_ssn)
+
+            if account_details:
+                account_df = pd.DataFrame(account_details, index=[0]).T
+                account_df.columns = ['Value']
+                print("Account details:")
+                print(account_df)
+            else:
+                print("No account details found. Please enter another SSN or check the SSN.")
+
+        elif choice == '2':
+            customer_ssn = get_customer_ssn()
+            modify_account_details(connection, customer_ssn)
+
+        elif choice == '3':
+            card_number = get_credit_card_number()
+            month_year = get_month_year()
+            bill_amount = generate_monthly_bill(connection, card_number, month_year)
+            if bill_amount is not None:
+                print(f"Total bill amount for {month_year}: ${bill_amount:.2f}")
+
+                billing_info = {
+                    'Credit Card Number': [card_number],
+                    'Month-Year': [month_year],
+                    'Total Bill Amount': [bill_amount]
+                }
+                billing_df = pd.DataFrame(billing_info)
+                output_dir = "../report/billing_report_cardnumber_monthyear"
+                os.makedirs(output_dir, exist_ok=True)
+                csv_filename = os.path.join(output_dir, f"billing_{card_number}_{month_year.replace('-', '')}.csv")
+                billing_df.to_csv(csv_filename, index=False)
+                print(f"Billing information exported to {csv_filename}")
+            else:
+                print("Please enter another credit card number or month-year combination.")
+
+        elif choice == '4':
+            customer_ssn = get_customer_ssn()
+            start_date = get_date("Enter start date (YYYY-MM-DD): ")
+            end_date = get_date("Enter end date (YYYY-MM-DD): ")
+            transactions = display_transactions_between_dates(connection, customer_ssn, start_date, end_date)
+            if transactions:
+                df = pd.DataFrame(transactions)
+                print(df)
+                output_dir = "../report/transactions_report_ssn_startdate_to_enddate"
+                os.makedirs(output_dir, exist_ok=True)
+                csv_filename = os.path.join(output_dir, f"transactions_{customer_ssn}_{start_date}_to_{end_date}.csv")
+                df.to_csv(csv_filename, index=False)
+                print(f"Transactions exported to {csv_filename}")
+            else:
+                print("No transactions found for the specified date range.")
+
+        elif choice == '5':
+            print("Exiting Customer Details Module.")
+            break
+
+        else:
+            print("Invalid choice. Please enter a number between 1 and 5.")
 
 
 # 3. Functional Requirements - Data Analysis and Visualization
