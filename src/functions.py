@@ -235,96 +235,6 @@ def get_customer_ssn():
         else:
             print("Invalid SSN format. Please enter exactly 9 digits.")
 
-# # Modify the existing account details of a customer
-# def modify_account_details(connection, customer_ssn):
-#     cursor = connection.cursor(dictionary=True)
-#     cursor.execute("SELECT * FROM CDW_SAPP_CUSTOMER WHERE SSN = %s", (customer_ssn,))
-#     account_details = cursor.fetchone()
-#     cursor.close()
-
-#     if not account_details:
-#         print("Customer not found.")
-#         input("Press any key to continue...")
-#         return
-
-#     fields = ['FIRST_NAME', 'MIDDLE_NAME', 'LAST_NAME', 'FULL_STREET_ADDRESS', 'CUST_CITY', 'CUST_STATE', 'CUST_COUNTRY', 'CUST_ZIP', 'CUST_PHONE', 'CUST_EMAIL']
-#     new_details = {}
-
-#     for field in fields:
-#         update = input(f"Do you want to update {field} (current value: {account_details[field]})? (y/n): ")
-#         if update.lower() == 'y':
-#             new_value = input(f"Enter new value for {field}: ")
-#             if field == 'CUST_PHONE':
-#                 while not validate_phone_number(new_value):
-#                     new_value = input("Invalid phone number format. Please enter a 10-digit phone number: ")
-#                 new_value = format_phone_number(new_value)
-#             elif field == 'CUST_CITY':
-#                 new_value = format_city_name(new_value)
-#             elif field == 'CUST_ZIP':
-#                 while not validate_zip_code(new_value):
-#                     new_value = input("Invalid zip code format. Please enter a 5-digit zip code: ")
-#             elif field == 'CUST_EMAIL':
-#                 while not validate_email(new_value):
-#                     new_value = input("Invalid email format. Please enter an email in the format xxxx@xxx.xxx: ")
-#             new_details[field] = new_value
-#         else:
-#             new_details[field] = account_details[field]
-
-#     print("\nThe following information will be updated:")
-#     for field, value in new_details.items():
-#         print(f"{field}: {value}")
-    
-#     confirm = input("\nIs the above information correct? (yes/no): ").strip().lower()
-#     if confirm == 'yes':
-#         cursor = connection.cursor()
-#         update_query = """
-#         UPDATE CDW_SAPP_CUSTOMER
-#         SET FIRST_NAME = %s, MIDDLE_NAME = %s, LAST_NAME = %s, 
-#             FULL_STREET_ADDRESS = %s, CUST_CITY = %s, 
-#             CUST_STATE = %s, CUST_COUNTRY = %s, CUST_ZIP = %s, 
-#             CUST_PHONE = %s, CUST_EMAIL = %s, LAST_UPDATED = NOW()
-#         WHERE SSN = %s
-#         """
-#         cursor.execute(update_query, (
-#             new_details['FIRST_NAME'], new_details['MIDDLE_NAME'], new_details['LAST_NAME'],
-#             new_details['FULL_STREET_ADDRESS'], new_details['CUST_CITY'],
-#             new_details['CUST_STATE'], new_details['CUST_COUNTRY'], new_details['CUST_ZIP'],
-#             new_details['CUST_PHONE'], new_details['CUST_EMAIL'],
-#             customer_ssn
-#         ))
-#         connection.commit()
-#         cursor.close()
-
-#         print("Account details updated.")
-#     else:
-#         print("Please run the update process again to correct the information.")
-
-#     input("Press any key to continue...")
-
-# def format_phone_number(phone_number):
-#     # Remove any non-digit characters
-#     digits = re.sub(r'\D', '', phone_number)
-#     # Format the digits as (XXX)XXX-XXXX
-#     formatted_number = f"({digits[:3]}){digits[3:6]}-{digits[6:]}"
-#     return formatted_number
-
-# def validate_phone_number(phone_number):
-#     digits = re.sub(r'\D', '', phone_number)
-#     return len(digits) == 10
-
-# def validate_zip_code(zip_code):
-#     return re.match(r'^\d{5}$', zip_code) is not None
-
-# def validate_email(email):
-#     return re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email) is not None
-
-# def format_city_name(city_name):
-#     # Insert a space before each capital letter in the middle of the word
-#     formatted_city = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', city_name)
-#     return formatted_city
-
-
-
 # Modify the existing account details of a customer
 def modify_account_details(connection, customer_ssn):
     cursor = connection.cursor(dictionary=True)
@@ -405,31 +315,29 @@ def modify_account_details(connection, customer_ssn):
 
     input("Press any key to continue...")
 
+# Format a phone number as (XXX)XXX-XXXX
 def format_phone_number(phone_number):
-    # Remove any non-digit characters
     digits = re.sub(r'\D', '', phone_number)
-    # Format the digits as (XXX)XXX-XXXX
     formatted_number = f"({digits[:3]}){digits[3:6]}-{digits[6:]}"
     return formatted_number
 
+# Validate a phone number as a 10-digit number
 def validate_phone_number(phone_number):
     digits = re.sub(r'\D', '', phone_number)
     return len(digits) == 10
 
+# Validate a zip code as a 5-digit number
 def validate_zip_code(zip_code):
     return re.match(r'^\d{5}$', zip_code) is not None
 
+# Validate an email address
 def validate_email(email):
     return re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', email) is not None
 
+# Format a city name by inserting a space before each capital letter in the middle of the word
 def format_city_name(city_name):
-    # Insert a space before each capital letter in the middle of the word
     formatted_city = re.sub(r'(?<=[a-z])(?=[A-Z])', ' ', city_name)
     return formatted_city
-
-
-
-
 
 # Generate a monthly bill for a credit card
 def generate_monthly_bill(connection, card_number, month_year):
@@ -506,7 +414,6 @@ def generate_monthly_bill(connection, card_number, month_year):
     print(f"Monthly bill transactions exported to {csv_filename}")
 
     return total_amount
-
 
 # Get the credit card number from the user
 def get_credit_card_number():
@@ -681,17 +588,27 @@ def plot_transaction_type_count(connection):
     """
     df = pd.read_sql(query, connection)
 
+    # Count the number of unique transaction types
+    unique_transaction_types = df['TRANSACTION_TYPE'].nunique()
+    print(f'There are {unique_transaction_types} unique transaction types.')
+
     plt.figure(figsize=(10, 6))
-    sns.barplot(x='TRANSACTION_TYPE', y='transaction_count', data=df, palette='viridis')
+    ax = sns.barplot(x='TRANSACTION_TYPE', y='transaction_count', data=df, palette='viridis')
     plt.title('Transaction Count by Transaction Type')
     plt.xlabel('Transaction Type')
     plt.ylabel('Transaction Count')
     plt.xticks(rotation=45)
+    
+    # Annotate the bars with the count values
+    for p in ax.patches:
+        ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha='center', va='center', xytext=(0, 9), textcoords='offset points')
+    
     plt.tight_layout()
     
-    output_dir = "visualizations"
+    output_dir = "../image"
     os.makedirs(output_dir, exist_ok=True)
-    filename = os.path.join(output_dir, "transaction_type_count.png")
+    filename = os.path.join(output_dir, "3_1_transaction_type_count.png")
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
@@ -707,17 +624,27 @@ def plot_top_states_with_customers(connection):
     """
     df = pd.read_sql(query, connection)
 
+    # Count the number of unique states
+    unique_states = df['CUST_STATE'].nunique()
+    print(f'There are {unique_states} unique states.')
+
     plt.figure(figsize=(10, 6))
-    sns.barplot(x='CUST_STATE', y='customer_count', data=df, palette='viridis')
+    ax = sns.barplot(x='CUST_STATE', y='customer_count', data=df, palette='viridis')
     plt.title('Top 10 States with the Highest Number of Customers')
     plt.xlabel('State')
     plt.ylabel('Customer Count')
     plt.xticks(rotation=45)
+    
+    # Annotate the bars with the count values
+    for p in ax.patches:
+        ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha='center', va='center', xytext=(0, 9), textcoords='offset points')
+    
     plt.tight_layout()
     
-    output_dir = "visualizations"
+    output_dir = "../image"
     os.makedirs(output_dir, exist_ok=True)
-    filename = os.path.join(output_dir, "top_10_states_customers.png")
+    filename = os.path.join(output_dir, "3_2_top_10_states_customers.png")
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
@@ -725,25 +652,42 @@ def plot_top_states_with_customers(connection):
 # Plot the top 10 customers by transaction sum
 def plot_top_customers_by_transaction_sum(connection):
     query = """
-    SELECT CUST_SSN, SUM(TRANSACTION_VALUE) AS total_transaction_sum
-    FROM CDW_SAPP_CREDIT_CARD
-    GROUP BY CUST_SSN
+    SELECT 
+        cc.CUST_SSN, 
+        ROUND(SUM(cc.TRANSACTION_VALUE), 2) AS total_transaction_sum,
+        CONCAT(c.LAST_NAME, ' ', c.MIDDLE_NAME, ' ', c.FIRST_NAME) AS full_name
+    FROM CDW_SAPP_CREDIT_CARD cc
+    JOIN CDW_SAPP_CUSTOMER c ON cc.CUST_SSN = c.SSN
+    GROUP BY cc.CUST_SSN, c.LAST_NAME, c.MIDDLE_NAME, c.FIRST_NAME
     ORDER BY total_transaction_sum DESC
     LIMIT 10
     """
     df = pd.read_sql(query, connection)
+    
+    # Create a new column combining SSN and full name
+    df['SSN_Name'] = df['CUST_SSN'].astype(str) + "\n" + df['full_name']
+    
+    # Convert SSN_Name to a categorical type with the specified order
+    df['SSN_Name'] = pd.Categorical(df['SSN_Name'], categories=df['SSN_Name'], ordered=True)
 
-    plt.figure(figsize=(10, 6))
-    sns.barplot(x='CUST_SSN', y='total_transaction_sum', data=df, palette='viridis')
-    plt.title('Top 10 Customers by Transaction Sum')
-    plt.xlabel('Customer SSN')
-    plt.ylabel('Total Transaction Sum ($)')
-    plt.xticks(rotation=45)
+    plt.figure(figsize=(14, 8))
+    ax = sns.barplot(x='SSN_Name', y='total_transaction_sum', data=df, palette='viridis')
+    plt.title('Top 10 Customers by Transaction Sum', fontsize=16)
+    plt.xlabel('Customer SSN - Full Name', fontsize=14)
+    plt.ylabel('Total Transaction Sum ($)', fontsize=14)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.yticks(fontsize=12)
+    
+    # Annotate the bars with the transaction sum values
+    for p in ax.patches:
+        ax.annotate(f'${p.get_height():,.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
+                    ha='center', va='center', xytext=(0, 9), textcoords='offset points')
+    
     plt.tight_layout()
     
-    output_dir = "visualizations"
+    output_dir = "../image"
     os.makedirs(output_dir, exist_ok=True)
-    filename = os.path.join(output_dir, "top_10_customers_transaction_sum.png")
+    filename = os.path.join(output_dir, "3_3_top_10_customers_transaction_sum.png")
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
