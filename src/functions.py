@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import requests
 
-
 # 1. Functional Requirements - Load Credit Card Database (SQL)
 # Create a connection to the MySQL database
 def create_database(connection, database_name):
@@ -23,7 +22,8 @@ def create_database(connection, database_name):
 
 # Initialize spark session
 def initialize_spark_session(app_name):
-    return SparkSession.builder.appName(app_name).getOrCreate()
+    jdbc_driver_path = "C:\Spark\mysql-connector-j-9.0.0.jar"
+    return SparkSession.builder.master("local[1]").appName(app_name).config("spark.driver.extraClassPath", jdbc_driver_path).getOrCreate()
 
 # Define the schema for the JSON files
 def get_schema():

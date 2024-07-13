@@ -10,7 +10,7 @@ connection = mysql.connector.connect(
 create_database(connection, "creditcard_capstone")
 
 # Initialize Spark session
-spark = initialize_spark_session('Credit Card System')
+spark = initialize_spark_session('Credit Card System Data')
 
 # Define the schema for the JSON files
 branch_schema, credit_schema, customer_schema = get_schema()

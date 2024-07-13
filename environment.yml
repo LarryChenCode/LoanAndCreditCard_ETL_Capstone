@@ -4,7 +4,6 @@
 #
 #    conda deactivate
 #    conda activate nameOfEnvironment
-#    conda install --name nameOfEnvironment black -y
 #
 #    conda env create -f environment.yml
 #    conda env update --file environment.yml --prune
@@ -19,7 +18,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - python=3.11
+  - python=3.12
   - numpy
   - pandas
   - scikit-learn
@@ -32,4 +31,6 @@ dependencies:
   - ipython
   - pip
   - pyspark
+  - findspark
   - mysql-connector-python
+  - mysql-connector-java
