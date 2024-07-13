@@ -11,6 +11,8 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import requests
+import subprocess
+import os
 
 # 1. Functional Requirements - Load Credit Card Database (SQL)
 # Create a connection to the MySQL database
@@ -20,10 +22,33 @@ def create_database(connection, database_name):
     cursor.close()
     print(f"Database '{database_name}' created")
 
+# Define the connection to the MySQL database
+def define_connection():
+    connection = mysql.connector.connect(
+        host="localhost",
+        user=my_secrets.mysql_username,
+        password=my_secrets.mysql_password
+    )
+    print("Connected to MySQL")
+    return connection
+    
+# Define the JDBC URL and connection properties
+def define_jdbc_n_properties():
+    jdbc_url = "jdbc:mysql://localhost:3306/creditcard_capstone"
+    connection_properties = {
+        "user": my_secrets.mysql_username,
+        "password": my_secrets.mysql_password,
+        "driver": "com.mysql.cj.jdbc.Driver"
+    }
+    print("jdbc_url and connection_properties defined")
+    return jdbc_url, connection_properties
+
 # Initialize spark session
 def initialize_spark_session(app_name):
-    jdbc_driver_path = "C:\Spark\mysql-connector-j-9.0.0.jar"
-    return SparkSession.builder.master("local[1]").appName(app_name).config("spark.driver.extraClassPath", jdbc_driver_path).getOrCreate()
+    jdbc_driver_path = "C:\\Spark\\mysql-connector-j-9.0.0.jar"
+    spark = SparkSession.builder.master("local[1]").appName(app_name).config("spark.driver.extraClassPath", jdbc_driver_path).getOrCreate()
+    print("Spark session initialized")
+    return spark
 
 # Define the schema for the JSON files
 def get_schema():
@@ -78,12 +103,14 @@ def transform_and_load_branch_data(branch_df, jdbc_url, connection_properties):
     branch_transformed_df = branch_df.withColumn("BRANCH_ZIP", lpad(col("BRANCH_ZIP").cast("string"), 5, "0")) \
         .withColumn("BRANCH_PHONE", expr("concat('(', substring(BRANCH_PHONE, 1, 3), ')', substring(BRANCH_PHONE, 4, 3), '-', substring(BRANCH_PHONE, 7, 4))"))
     branch_transformed_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_BRANCH", mode="overwrite", properties=connection_properties)
+    print("CDW_SAPP_BRANCH table loaded successfully")
 
 # Transform and load credit card data
 def transform_and_load_credit_card_data(credit_card_df, jdbc_url, connection_properties):
     credit_card_transformed_df = credit_card_df.withColumn("TIMEID", concat_ws("", col("YEAR"), lpad(col("MONTH").cast("string"), 2, "0"), lpad(col("DAY").cast("string"), 2, "0")))
     credit_card_transformed_df = credit_card_transformed_df.drop("DAY", "MONTH", "YEAR")
     credit_card_transformed_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_CREDIT_CARD", mode="overwrite", properties=connection_properties)
+    print("CDW_SAPP_CREDIT_CARD table loaded successfully")
 
 # Transform and load customer data
 def transform_and_load_customer_data(customer_df, jdbc_url, connection_properties):
@@ -95,6 +122,7 @@ def transform_and_load_customer_data(customer_df, jdbc_url, connection_propertie
         .withColumn("CUST_PHONE", expr("concat('(', substring(CUST_PHONE, 1, 3), ')', substring(CUST_PHONE, 4, 3), '-', substring(CUST_PHONE, 7, 4))"))
     customer_transformed_df = customer_transformed_df.drop("APT_NO", "STREET_NAME")
     customer_transformed_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_CUSTOMER", mode="overwrite", properties=connection_properties)
+    print("CDW_SAPP_CUSTOMER table loaded successfully")
 
 # Load Json file
 def load_json(file_path):
@@ -105,11 +133,27 @@ def load_json(file_path):
 def check_row_count(cursor, table_name, expected_count):
     cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
     result = cursor.fetchone()
-    if expected_count == result[0]:
-        print(f"Number of rows in {table_name} table is the same as the JSON file")
-    else:
-        print(f"Number of rows in {table_name} table is different from the JSON file")
+    if expected_count != result[0]:
+        print(f"Number of rows in {table_name} table is different from the JSON file. Expected: {expected_count}, Found: {result[0]}")
+        return False
+    return True
 
+# Check if the number of rows in the JSON files and the MySQL database are the same
+def check_json_files_with_database(connection, branch_json, credit_card_json, customer_json):
+    
+    cursor = connection.cursor()
+    cursor.execute("USE creditcard_capstone")
+    
+    branch_correct = check_row_count(cursor, "CDW_SAPP_BRANCH", len(branch_json))
+    credit_card_correct = check_row_count(cursor, "CDW_SAPP_CREDIT_CARD", len(credit_card_json))
+    customer_correct = check_row_count(cursor, "CDW_SAPP_CUSTOMER", len(customer_json))
+    
+    if branch_correct and credit_card_correct and customer_correct:
+        print("Data load correct: All tables have the same number of rows as the JSON files.")
+
+    cursor.close()
+    connection.close()
+        
 
 # 2. Functional Requirements - Application Front-End
 # 2.1 Transaction Details Module
