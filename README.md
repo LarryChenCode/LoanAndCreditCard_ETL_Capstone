@@ -14,7 +14,6 @@ This capstone project demonstrates the knowledge and abilities acquired througho
 - [Data Loading into Database](#data-loading-into-database)
 - [Application Front-End](#application-front-end)
 - [Data Analysis and Visualization](#data-analysis-and-visualization)
-- [Demo Video](#demo-video)
 
 
 ## Summary
@@ -95,5 +94,3 @@ Plot showing the top three months with the largest volume of transactions.
 ### The Branch with the Highest Healthcare Transactions Amount
 ![Highest Healthcare Transactions Branch](image/5_4_highest_healthcare_transactions_branch.png)
 Plot showing which branch processed the highest total value of healthcare transactions.
-
-## Demo Video
