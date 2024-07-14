@@ -15,7 +15,7 @@ This project involves the following steps:
 ## Table of Contents
 - [Technologies Used](#technologies-used)
 - [Project Structure](#project-structure)
-- [Data Extraction and Transformation (from JSON and API)](#data-extraction-and-transformation)
+- [Data Extraction and Transformation](#data-extraction-and-transformation)
 - [Data Loading into Database](#data-loading-into-database)
 - [Application Front-End](#application-front-end)
 - [Data Analysis and Visualization](#data-analysis-and-visualization)
@@ -33,8 +33,9 @@ This project involves the following steps:
 - `report/`: Directory for saving generated reports.
 - `image/`: Directory for saving visualizations.
 
-## Data Extraction and Transformation (from JSON and API)
-The project reads data from the following:
+## Data Extraction and Transformation
+The project reads data from the JSON files and API:
+
 1. JSON files:
     - `CDW_SAPP_BRANCH.JSON`
     - `CDW_SAPP_CREDITCARD.JSON`
