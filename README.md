@@ -5,7 +5,7 @@ This capstone project demonstrates the knowledge and abilities acquired througho
 
 This project involves the following steps:
 1. Preprocessing of datasets (Loan Application and Credit Card).
-2. Data extraction, transformation, and loading using Python (Pandas, advanced modules like Matplotlib), SQL, and Apache Spark (Spark Core, Spark SQL).
+2. Data extraction, transformation, and loading using Python (Pandas, advanced modules like Matplotlib, Seaborn, FPDF), SQL, and PySpark.
 3. Creating a console-based application for data management and visualization.
 4. Developing visualizations and analytics using Python libraries.
 
@@ -30,25 +30,26 @@ This project involves the following steps:
 ## Project Structure
 - `data/`: Contains the JSON files for Credit Card dataset.
 - `db/`: Contains the sql file for database creditcard_capstone 
-- `src/`: Contains the Python scripts for data extraction, transformation, and loading.
+- `src/`: Contains the Python scripts for data ETL process, application front-end, and data analysis and visualization.
 - `report/`: Directory for saving generated reports.
 - `image/`: Directory for saving visualizations.
 
-## Data Extraction and Transformation
-The project reads data from the following JSON files:
-- `CDW_SAPP_BRANCH.JSON`
-- `CDW_SAPP_CREDITCARD.JSON`
-- `CDW_SAPP_CUSTOMER.JSON`
-Data extraction and transformation are performed using PySpark. Schemas are defined for each file, and data is read into Spark DataFrames.
+## Data Extraction and Transformation (from JSON and API)
+The project reads data from the following:
+1. JSON files:
+    - `CDW_SAPP_BRANCH.JSON`
+    - `CDW_SAPP_CREDITCARD.JSON`
+    - `CDW_SAPP_CUSTOMER.JSON`
+2. API Endpoint: https://raw.githubusercontent.com/platformps/LoanDataset/main/loan_data.json
 
-## Loan Application Dataset - API
-Data is fetched from a Loan Application API and loaded into the CDW_SAPP_loan_application table in the creditcard_capstone database. The data is then analyzed and visualized. 
+Data extraction and transformation are performed using PySpark. Schemas are defined for each file, and data is read into Spark DataFrames.
 
 ## Data Loading into Database
 Transformed data is loaded into a MySQL database named creditcard_capstone with the following tables:
 - `CDW_SAPP_BRANCH`
 - `CDW_SAPP_CREDIT_CARD`
 - `CDW_SAPP_CUSTOMER`
+- `CDW_SAPP_loan_application`
 
 ## Application Front-End
 A console-based menu-driven application is created to interact with the data. The application includes the following modules:
