@@ -1,8 +1,21 @@
 # Loan and Credit Card ETL Capstone Project
-This capstone project demonstrates the knowledge and abilities acquired throughout the course by managing an ETL (Extract, Transform, Load) process for a Loan Application dataset and a Credit Card dataset.
+
+## Overview
+This capstone project demonstrates the knowledge and abilities acquired throughout the Data Engineering course. The project involves managing an ETL process for a Loan Application dataset and a Credit Card dataset using Python, SQL, Apache Spark, and various Python libraries for data visualization and analysis.
 
 ## Authors
 - Chun-hao (Larry) Chen &nbsp;<a href="https://www.linkedin.com/in/larrychencpa/"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" style="height: 1em; width:auto;"/></a> &nbsp; <a href="https://github.com/LarryChenCode"> <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" style="height: 1em; width: auto;"/></a>
+
+## Table of Contents
+- [Technologies Used](#technologies-used)
+- [Project Structure](#project-structure)
+- [Data Extraction and Transformation](#data-extraction-and-transformation)
+- [Loan Application Dataset - API](#loan-application-dataset)
+- [Data Loading into Database](#data-loading-into-database)
+- [Application Front-End](#application-front-end)
+- [Data Analysis and Visualization](#data-analysis-and-visualization)
+- [Demo Video](#demo-video)
+
 
 ## Summary
 This project involves the following steps:
@@ -11,36 +24,27 @@ This project involves the following steps:
 3. Creating a console-based application for data management and visualization.
 4. Developing visualizations and analytics using Python libraries.
 
-## Final Product
+## Technologies Used
+- Python (Pandas, Matplotlib, Seaborn, FPDF)
+- SQL (MySQL)
+- PySpark
+- API
 
-```
-```
+## Project Structure
+- `data/`: Contains the JSON files for Credit Card dataset.
+- `db/`: Contains the sql file for database creditcard_capstone 
+- `src/`: Contains the Python scripts for data extraction, transformation, and loading.
+- `report/`: Directory for saving generated reports.
+- `image/`: Directory for saving visualizations.
 
-## Process
+## Data Extraction and Transformation
 
-### Data Preprocessing
-The initial data from various sources required preprocessing to make it suitable for ETL processes. This involved cleaning and transforming the data to ensure consistency and accuracy.
+## Loan Application Dataset - API
 
-### Cross-Validation
-Cross-validation was performed on the cleaned datasets to determine the best models and methods for data processing and analysis.
+## Data Loading into Database
 
-### Data Extraction and Transformation
-Data was extracted from JSON files using Python and PySpark, transformed according to the requirements, and loaded into an RDBMS (MySQL).
+## Application Front-End
 
-### Console-Based Application
-A console-based application was developed to interact with the data, allowing users to query and visualize the data through a text-based interface.
-
-### Data Analysis and Visualization
-Python libraries were used to create various visualizations to analyze the data and provide insights. This included plotting transaction counts, customer distributions, and transaction amounts.
+## Data Analysis and Visualization
 
 ## Demo Video
-We have included a demo video of using the final product below:
-
-[Demo Video]()
-
-## Technical Walkthrough
-The project includes a technical walkthrough, highlighting the following components:
-- User interface of the console-based application.
-- Database with clean data.
-- Visualizations and analytics.
-- Overall functionalities and features of the solution.
