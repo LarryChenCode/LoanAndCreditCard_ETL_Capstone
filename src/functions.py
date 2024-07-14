@@ -465,7 +465,7 @@ def define_connection_with_db():
         host="localhost",
         user=my_secrets.mysql_username,
         password=my_secrets.mysql_password,
-        database="creditcard_capstone"  # Ensure the correct database is selected
+        database="creditcard_capstone" 
     )
     print("Connected to MySQL")
     return connection
@@ -485,10 +485,10 @@ def transaction_details_module(connection):
 
         zip_code = get_zip_code()
         if zip_code is None:
-            return  # Exit to main menu if 'exit' is entered
+            return
         month_year = get_month_year()
         if month_year is None:
-            return  # Exit to main menu if 'exit' is entered
+            return
         transactions = query_transactions(connection, zip_code, month_year)
         df = display_transactions(transactions)
 
@@ -502,7 +502,7 @@ def transaction_details_module(connection):
         else:
             print("No transactions found for the specified zip code and date range.")
         
-        first_time = False  # From now on, ask if the user wants to continue
+        first_time = False
 
 
 # Create customer details module
@@ -588,7 +588,6 @@ def plot_transaction_type_count(connection):
     """
     df = pd.read_sql(query, connection)
 
-    # Count the number of unique transaction types
     unique_transaction_types = df['TRANSACTION_TYPE'].nunique()
     print(f'There are {unique_transaction_types} unique transaction types.')
 
@@ -599,7 +598,6 @@ def plot_transaction_type_count(connection):
     plt.ylabel('Transaction Count')
     plt.xticks(rotation=45)
     
-    # Annotate the bars with the count values
     for p in ax.patches:
         ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2., p.get_height()),
                     ha='center', va='center', xytext=(0, 9), textcoords='offset points')
@@ -624,7 +622,6 @@ def plot_top_states_with_customers(connection):
     """
     df = pd.read_sql(query, connection)
 
-    # Count the number of unique states
     unique_states = df['CUST_STATE'].nunique()
     print(f'There are {unique_states} unique states.')
 
@@ -635,7 +632,6 @@ def plot_top_states_with_customers(connection):
     plt.ylabel('Customer Count')
     plt.xticks(rotation=45)
     
-    # Annotate the bars with the count values
     for p in ax.patches:
         ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2., p.get_height()),
                     ha='center', va='center', xytext=(0, 9), textcoords='offset points')
@@ -664,10 +660,8 @@ def plot_top_customers_by_transaction_sum(connection):
     """
     df = pd.read_sql(query, connection)
     
-    # Create a new column combining SSN and full name
     df['SSN_Name'] = df['CUST_SSN'].astype(str) + "\n" + df['full_name']
     
-    # Convert SSN_Name to a categorical type with the specified order
     df['SSN_Name'] = pd.Categorical(df['SSN_Name'], categories=df['SSN_Name'], ordered=True)
 
     plt.figure(figsize=(14, 8))
@@ -677,8 +671,7 @@ def plot_top_customers_by_transaction_sum(connection):
     plt.ylabel('Total Transaction Sum ($)', fontsize=14)
     plt.xticks(rotation=45, ha='right', fontsize=12)
     plt.yticks(fontsize=12)
-    
-    # Annotate the bars with the transaction sum values
+
     for p in ax.patches:
         ax.annotate(f'${p.get_height():,.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
                     ha='center', va='center', xytext=(0, 9), textcoords='offset points')
@@ -694,6 +687,7 @@ def plot_top_customers_by_transaction_sum(connection):
 
 
 # 4. Functional Requirements - LOAN Application Dataset
+# Get the loan data from the API
 def get_loan_data(api_url):
     response = requests.get(api_url)
     status_code = response.status_code
@@ -705,6 +699,7 @@ def get_loan_data(api_url):
         print(f"Failed to fetch the data. Status code: {status_code}")
         return None, status_code
 
+# Define the schema for the loan data
 def get_loan_schema():
     loan_schema = StructType([
         StructField("Application_ID", StringType(), True),
@@ -720,9 +715,9 @@ def get_loan_schema():
     ])
     return loan_schema
 
+# Load the loan data into the MySQL database
 def transform_and_load_loan_data(spark, loan_data, jdbc_url, connection_properties):
     loan_schema = get_loan_schema()        
-    # Create a DataFrame from the list of dictionaries
     loan_df = spark.read.json(spark.sparkContext.parallelize(loan_data), schema=loan_schema)
     loan_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_loan_application", mode="overwrite", properties=connection_properties)
     print("CDW_SAPP_loan_application table loaded successfully")
@@ -740,33 +735,36 @@ def plot_self_employed_approval_percentage(connection):
     """
     df = pd.read_sql(query, connection)
     
-    # Calculate the approval percentage
     df['approval_percentage'] = (df['approved'] / df['total']) * 100
 
-    # Print the counts
-    print("Self-Employed Applicants (Yes) Counts:")
-    print(f"Total Applications: {df['total'][0]}")
-    print(f"Approved Applications: {df['approved'][0]}")
-    print(f"Approval Percentage: {df['approval_percentage'][0]:.2f}%")
-    print()
+    total_applications = df['total'][0]
+    approved_applications = int(round(df['approved'][0], 0))
+    not_approved_applications = total_applications - approved_applications
 
-    # Create a DataFrame for plotting
-    plot_df = pd.DataFrame({
-        'Self_Employed': ['Yes'],
-        'approval_percentage': df['approval_percentage']
-    })
+    labels = ['Approved', 'Not Approved']
+    sizes = [df['approved'][0], df['total'][0] - df['approved'][0]]
+    colors = ['#66b3ff', '#ff9999']
+    explode = (0.1, 0) 
 
-    plt.figure(figsize=(8, 6))
-    sns.barplot(x='Self_Employed', y='approval_percentage', data=plot_df, palette='viridis')
+    plt.figure(figsize=(10, 6))
+    wedges, texts, autotexts = plt.pie(sizes, explode=explode, colors=colors, autopct='%1.2f%%', shadow=True, startangle=140, pctdistance=0.85)
+    
+    plt.legend(wedges, labels, title="Status", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    
+    plt.setp(autotexts, size=10, weight="bold")
+    plt.setp(texts, size=10)
+    
+    plt.text(1, 0.7, f'Total Applications: {total_applications}', fontsize=12, weight='bold')
+    plt.text(1, 0.6, f'Approved Applications: {approved_applications}', fontsize=12, weight='bold')
+    
+    
     plt.title('Approval Percentage for Self-Employed Applicants')
-    plt.xlabel('Self-Employed')
-    plt.ylabel('Approval Percentage')
-    plt.ylim(0, 100)  # Set y-axis limit to 100%
+    plt.axis('equal')
     plt.tight_layout()
 
-    output_dir = "visualizations"
+    output_dir = "../image"
     os.makedirs(output_dir, exist_ok=True)
-    filename = os.path.join(output_dir, "self_employed_approval_percentage.png")
+    filename = os.path.join(output_dir, "5_1_self_employed_approval_percentage_pie.png")
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
@@ -783,16 +781,33 @@ def plot_married_male_rejection_percentage(connection):
     df = pd.read_sql(query, connection)
     df['rejection_percentage'] = (df['rejected'] / df['total']) * 100
 
-    plt.figure(figsize=(8, 6))
-    sns.barplot(x='Married', y='rejection_percentage', data=df, palette='viridis')
+    total_applications = df['total'][0]
+    rejected_applications = int(round(df['rejected'][0], 0))
+    not_rejected_applications = total_applications - rejected_applications
+
+    labels = ['Rejected', 'Not Rejected']
+    sizes = [rejected_applications, not_rejected_applications]
+    colors = ['#ff9999', '#66b3ff']
+    explode = (0.1, 0) 
+
+    plt.figure(figsize=(10, 6))
+    wedges, texts, autotexts = plt.pie(sizes, explode=explode, colors=colors, autopct='%1.2f%%', shadow=True, startangle=140, pctdistance=0.85)
+    
+    plt.legend(wedges, labels, title="Status", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+    
+    plt.setp(autotexts, size=10, weight="bold")
+    plt.setp(texts, size=10)
+    
+    plt.text(1, 0.7, f'Total Applications: {total_applications}', fontsize=12, weight='bold')
+    plt.text(1, 0.6, f'Rejected Applications: {rejected_applications}', fontsize=12, weight='bold')
+    
     plt.title('Rejection Percentage for Married Male Applicants')
-    plt.xlabel('Married')
-    plt.ylabel('Rejection Percentage')
+    plt.axis('equal')  
     plt.tight_layout()
 
-    output_dir = "visualizations"
+    output_dir = "../image"
     os.makedirs(output_dir, exist_ok=True)
-    filename = os.path.join(output_dir, "married_male_rejection_percentage.png")
+    filename = os.path.join(output_dir, "5_2_married_male_rejection_percentage_pie.png")
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
@@ -808,19 +823,22 @@ def plot_top_three_months_transaction_volume(connection):
     """
     df = pd.read_sql(query, connection)
 
-    # Convert YearMonth to readable format (YYYY-MM)
     df['YearMonth'] = df['YearMonth'].apply(lambda x: f"{x[:4]}-{x[4:6]}")
 
-    plt.figure(figsize=(8, 6))
-    sns.barplot(x='YearMonth', y='transaction_count', data=df, palette='viridis')
+    plt.figure(figsize=(10, 6))
+    barplot = sns.barplot(x='YearMonth', y='transaction_count', data=df, palette='viridis')
     plt.title('Top 3 Months with Largest Transaction Volume')
     plt.xlabel('Year-Month')
     plt.ylabel('Transaction Volume')
+    
+    for index, row in df.iterrows():
+        barplot.text(index, row.transaction_count, row.transaction_count, color='black', ha="center", va="bottom")
+
     plt.tight_layout()
 
-    output_dir = "visualizations"
+    output_dir = "../image"
     os.makedirs(output_dir, exist_ok=True)
-    filename = os.path.join(output_dir, "top_three_months_transaction_volume.png")
+    filename = os.path.join(output_dir, "5_3_top_three_months_transaction_volume.png")
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
@@ -838,15 +856,19 @@ def plot_highest_healthcare_transactions_branch(connection):
     df = pd.read_sql(query, connection)
 
     plt.figure(figsize=(8, 6))
-    sns.barplot(x='BRANCH_CODE', y='total_value', data=df, palette='viridis')
+    barplot = sns.barplot(x='BRANCH_CODE', y='total_value', data=df, palette='viridis')
     plt.title('Branch with Highest Total Value of Healthcare Transactions')
     plt.xlabel('Branch Code')
     plt.ylabel('Total Transaction Value ($)')
+    
+    for index, row in df.iterrows():
+        barplot.text(index, row.total_value, f"${row.total_value:,.2f}", color='black', ha="center", va="bottom")
+
     plt.tight_layout()
 
-    output_dir = "visualizations"
+    output_dir = "../image"
     os.makedirs(output_dir, exist_ok=True)
-    filename = os.path.join(output_dir, "highest_healthcare_transactions_branch.png")
+    filename = os.path.join(output_dir, "5_4_highest_healthcare_transactions_branch.png")
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
