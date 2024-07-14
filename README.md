@@ -69,31 +69,31 @@ A console-based menu-driven application is created to interact with the data. Th
 The project includes several visualizations to analyze the data. Below are the visualizations created:
 
 ### Transaction Type Analysis
-![3_1_transaction_type_count](image\3_1_transaction_type_count.png)
+![Transaction Type Count](image/3_1_transaction_type_count.png)
 Plot showing which transaction type has the highest transaction count.
 
 ### Top 10 States by Customer Count
-![3_2_top_10_states_customers](image\3_2_top_10_states_customers.png)
+![Top 10 States by Customers](image/3_2_top_10_states_customers.png)
 Plot showing the top 10 states with the highest number of customers.
 
 ### Top 10 Customers by Transaction Sum
-![3_3_top_10_customers_transaction_sum](image\3_3_top_10_customers_transaction_sum.png)
+![Top 10 Customers by Transaction Sum](image/3_3_top_10_customers_transaction_sum.png)
 Plot showing the top 10 customers with the highest transaction sums.
 
 ### Self-Employed Approval Percentage
-![self_employed_approval_percentage_pie](image\5_1_self_employed_approval_percentage_pie.png)
+![Self-Employed Approval Percentage](image/5_1_self_employed_approval_percentage_pie.png)
 Plot showing the percentage of applications approved for self-employed applicants.
 
 ### Married Male Rejection Percentage
-![married_male_rejection_percentage_pie](image\5_2_married_male_rejection_percentage_pie.png)
+![Married Male Rejection Percentage](image/5_2_married_male_rejection_percentage_pie.png)
 Plot showing the rejection percentage for married male applicants.
 
 ### Top Three Months by Transaction Volume
-![top_three_months_transaction_volume](image\5_3_top_three_months_transaction_volume.png)
+![Top Three Months by Transaction Volume](image/5_3_top_three_months_transaction_volume.png)
 Plot showing the top three months with the largest volume of transactions.
 
-#### The Branch with the Highest Healthcare Transactions Amount
-![highest_healthcare_transactions_branch](image\5_4_highest_healthcare_transactions_branch.png)
+### The Branch with the Highest Healthcare Transactions Amount
+![Highest Healthcare Transactions Branch](image/5_4_highest_healthcare_transactions_branch.png)
 Plot showing which branch processed the highest total value of healthcare transactions.
 
 ## Demo Video
