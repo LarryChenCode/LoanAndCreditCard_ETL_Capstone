@@ -694,20 +694,18 @@ def plot_top_customers_by_transaction_sum(connection):
 
 
 # 4. Functional Requirements - LOAN Application Dataset
-# Get the loan application data from the API
 def get_loan_data(api_url):
     response = requests.get(api_url)
     status_code = response.status_code
-    print(f"Status code of the API endpoint: {status_code}")
     if status_code == 200:
-        loan_data = response.json()
-        return loan_data
+        print(f"Status code: {status_code}")
+        print("Successfully fetched the loan application data.")
+        return response.json(), status_code
     else:
-        print(f"Failed to fetch data. Status code: {status_code}")
-        return None
+        print(f"Failed to fetch the data. Status code: {status_code}")
+        return None, status_code
 
-# Load the loan application data into the RDBMS
-def load_loan_data_to_rdbms(spark, loan_data, jdbc_url, connection_properties):
+def get_loan_schema():
     loan_schema = StructType([
         StructField("Application_ID", StringType(), True),
         StructField("Gender", StringType(), True),
@@ -720,17 +718,15 @@ def load_loan_data_to_rdbms(spark, loan_data, jdbc_url, connection_properties):
         StructField("Income", StringType(), True),
         StructField("Application_Status", StringType(), True)
     ])
-    
-    loan_df = spark.createDataFrame(loan_data, schema=loan_schema)
-    loan_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_loan_application", mode="overwrite", properties=connection_properties)
-    print("Loan data loaded into RDBMS")
+    return loan_schema
 
-# Display the loan application data
-def display_loan_data(loan_data):
-    loan_df = pd.DataFrame(loan_data)
-    print("\nLoan Data:")
-    print(loan_df)
-    
+def transform_and_load_loan_data(spark, loan_data, jdbc_url, connection_properties):
+    loan_schema = get_loan_schema()        
+    # Create a DataFrame from the list of dictionaries
+    loan_df = spark.read.json(spark.sparkContext.parallelize(loan_data), schema=loan_schema)
+    loan_df.write.jdbc(url=jdbc_url, table="CDW_SAPP_loan_application", mode="overwrite", properties=connection_properties)
+    print("CDW_SAPP_loan_application table loaded successfully")
+
 
 # 5. Functional Requirements - Data Analysis and Visualization for Loan Application
 # Plot the approval percentage of self-employed applicants

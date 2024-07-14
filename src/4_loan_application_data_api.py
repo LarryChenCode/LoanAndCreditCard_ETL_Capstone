@@ -1,24 +1,19 @@
 from functions import *
 
 api_url = "https://raw.githubusercontent.com/platformps/LoanDataset/main/loan_data.json"
-database_name = "creditcard_capstone"
-jdbc_url = f"jdbc:mysql://localhost:3306/{database_name}"
-connection_properties = {
-    "user": my_secrets.mysql_username,
-    "password": my_secrets.mysql_password,
-    "driver": "com.mysql.cj.jdbc.Driver"
-}
 
-# Initialize Spark session
-spark = initialize_spark_session("LoanDataETL")
+# Fetch the loan data
+loan_data, status_code = get_loan_data(api_url)
 
-# Fetch loan data from API
-loan_data = get_loan_data(api_url)
 if loan_data:
-    # Display loan data
-    display_loan_data(loan_data)
-    
-    # Load loan data into RDBMS
-    load_loan_data_to_rdbms(spark, loan_data, jdbc_url, connection_properties)
+    # Initialize Spark session
+    spark = initialize_spark_session('Loan Application Data')
 
-spark.stop()
+    # Define JDBC URL and connection properties
+    jdbc_url, connection_properties = define_jdbc_n_properties()
+
+    # Transform and load the loan data into the database
+    transform_and_load_loan_data(spark, loan_data, jdbc_url, connection_properties)
+
+    # Stop the Spark session
+    spark.stop()
