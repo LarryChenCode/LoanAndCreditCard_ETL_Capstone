@@ -72,7 +72,8 @@ Transformed data is loaded into a MySQL database named creditcard_capstone with 
 - `CDW_SAPP_CUSTOMER`
 - `CDW_SAPP_loan_application`
 
-Database and tables in MySQL:\
+Database and tables in MySQL:
+
 https://github.com/user-attachments/assets/a572fa62-11ad-408e-907b-d1488982cfbe
 
 ## Application Front-End
