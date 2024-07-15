@@ -57,6 +57,7 @@ A console-based menu-driven application is created to interact with the data. Th
 ### Transaction Details Module:
 - Query transactions based on zip code and month-year.
 - Display and export transactions.
+
 [![Transaction Details Module Demo](https://img.youtube.com/vi/O0LZaB-5PVw/0.jpg)](https://youtu.be/O0LZaB-5PVw)
 
 
