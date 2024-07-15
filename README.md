@@ -57,8 +57,8 @@ graph TB
   end
   
   B -->|L: Load| F[MySQL Database]
-  F -->|G[CLI Python Program]
-  F -->|H[Data analyzing and Visualization]
+  F -->|| G[CLI Python Program]
+  F -->|| H[Data analyzing and Visualization]
 ```
 
 ## Project Structure
