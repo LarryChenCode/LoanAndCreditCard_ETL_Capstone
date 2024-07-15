@@ -38,6 +38,30 @@ Any financial institution that wants to improve operational efficiency and gain 
 ### Workflow Diagram
 <img width="438" alt="image" src="https://github.com/user-attachments/assets/6ea2e4ad-c5ac-4e59-9fc0-02babd546b8e">
 
+```mermaid
+graph TB
+  subgraph "Data Sources"
+    A[CDW_SAPP_CUSTOMER\nJson file] -->|E: Extraction| B[Apache Spark\n(PySpark)]
+    C[CDW_SAPP_CREDITCARD\nJson file] -->|E: Extraction| B
+    D[CDW_SAPP_BRANCH\nJson file] -->|E: Extraction| B
+    E[CDW_SAPP_LOAN\nData API Endpoint] -->|Python Rest API| B
+  end
+  
+  B -->|L: Load| F[Database]
+  F -->|C| G[Python Program\n(Frontend console)]
+  F -->|D| H[Data analyzing\nand Visualization]
+
+  subgraph "Processing"
+    B[Apache Spark\n(PySpark)]
+  end
+  
+  subgraph "Output"
+    F[Database]
+    G[Python Program\n(Frontend console)]
+    H[Data analyzing\nand Visualization]
+  end
+```
+
 ## Project Structure
 - `data/`: Contains the JSON files for Credit Card dataset.
 - `db/`: Contains the sql file for database creditcard_capstone 
@@ -140,3 +164,5 @@ https://www.analyticsvidhya.com/blog/2021/08/understanding-bar-plots-in-python-b
 
 How to make a Todo List CLI application using Python ?\
 https://www.geeksforgeeks.org/how-to-make-a-todo-list-cli-application-using-python/
+
+Per Scholas:\
