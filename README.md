@@ -58,8 +58,10 @@ The data extraction and transformation processes were conducted using PySpark, f
 
 Schemas code:
 - Data from Json:
+![image](https://github.com/user-attachments/assets/fe1c17e1-5071-4abd-9990-f03c8817452c)
 
 - Data from API:
+![image](https://github.com/user-attachments/assets/9940a7c4-6758-457c-9a7e-94cf5c76034c)
 
 
 ## Data Loading into Database
