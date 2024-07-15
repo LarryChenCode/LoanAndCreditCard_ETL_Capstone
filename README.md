@@ -41,24 +41,20 @@ Any financial institution that wants to improve operational efficiency and gain 
 ```mermaid
 graph TB
   subgraph "Data Sources"
-    A[CDW_SAPP_CUSTOMER Json file] -->|E: Extraction| B[Apache Spark (PySpark)]
+    A[CDW_SAPP_CUSTOMER Json file] -->|E: Extraction| B
     C[CDW_SAPP_CREDITCARD Json file] -->|E: Extraction| B
     D[CDW_SAPP_BRANCH Json file] -->|E: Extraction| B
     E[CDW_SAPP_LOAN Data API Endpoint] -->|Python Rest API| B
   end
   
-  B -->|L: Load| F[Database]
-  F -->|C| G[Python Program (Frontend console)]
-  F -->|D| H[Data analyzing and Visualization]
-
   subgraph "Processing"
     B[Apache Spark (PySpark)]
   end
   
   subgraph "Output"
-    F[Database]
-    G[Python Program (Frontend console)]
-    H[Data analyzing and Visualization]
+    B -->|L: Load| F[Database]
+    F -->|C| G[Python Program (Frontend console)]
+    F -->|D| H[Data analyzing and Visualization]
   end
 ```
 
