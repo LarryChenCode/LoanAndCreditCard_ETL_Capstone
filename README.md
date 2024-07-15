@@ -53,7 +53,7 @@ The project reads data from the JSON files and API:
     - `CDW_SAPP_BRANCH.JSON`
     - `CDW_SAPP_CREDITCARD.JSON`
     - `CDW_SAPP_CUSTOMER.JSON`
-2. API Endpoint: 
+2. API Endpoint:\
 https://raw.githubusercontent.com/platformps/LoanDataset/main/loan_data.json
 
 The data extraction and transformation processes were conducted using PySpark, following the specifications outlined in the [mapping document](https://docs.google.com/spreadsheets/d/1t8UxBrUV6dxx0pM1VIIGZpSf4IKbzjdJ/edit?usp=sharing&ouid=112747427162279359902&rtpof=true&sd=true). Schemas were defined for each file, and data was read into Spark DataFrames.
@@ -72,8 +72,7 @@ Transformed data is loaded into a MySQL database named creditcard_capstone with 
 - `CDW_SAPP_CUSTOMER`
 - `CDW_SAPP_loan_application`
 
-Database and tables in MySQL:
-
+Database and tables in MySQL:\
 https://github.com/user-attachments/assets/a572fa62-11ad-408e-907b-d1488982cfbe
 
 ## Application Front-End
