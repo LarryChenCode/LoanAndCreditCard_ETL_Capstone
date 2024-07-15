@@ -48,7 +48,7 @@ graph TB
   end
   
   subgraph "Processing"
-    B[Apache Spark (PySpark)]
+    B[Apache Spark]
   end
   
   B -->|L: Load| F[Database]
