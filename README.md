@@ -52,7 +52,7 @@ graph TB
   end
   
   B -->|L: Load| F[Database]
-  F -->|C| G[Python Program (Frontend console)]
+  F -->|C| G[Python Program]
   F -->|D| H[Data analyzing and Visualization]
 ```
 
