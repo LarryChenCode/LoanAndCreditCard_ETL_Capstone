@@ -51,11 +51,9 @@ graph TB
     B[Apache Spark (PySpark)]
   end
   
-  subgraph "Output"
-    B -->|L: Load| F[Database]
-    F -->|C| G[Python Program (Frontend console)]
-    F -->|D| H[Data analyzing and Visualization]
-  end
+  B -->|L: Load| F[Database]
+  F -->|C| G[Python Program (Frontend console)]
+  F -->|D| H[Data analyzing and Visualization]
 ```
 
 ## Project Structure
