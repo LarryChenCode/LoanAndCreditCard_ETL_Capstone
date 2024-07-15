@@ -48,11 +48,12 @@ graph TB
   end
   
   subgraph "Processing"
-    B[Apache Spark]
+    B[Apache Spark
+    T: Transformation]
   end
   
-  B -->|L: Load| F[Database]
-  F -->|C| G[Python Program]
+  B -->|L: Load| F[MySQL Database]
+  F -->|C| G[CLI Python Program]
   F -->|D| H[Data analyzing and Visualization]
 ```
 
