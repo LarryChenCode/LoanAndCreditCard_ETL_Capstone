@@ -15,11 +15,13 @@ This project involves the following steps:
 ## Table of Contents
 - [Business Use Case](#business-use-case)
 - [Technologies Used](#technologies-used)
+- [Project Workflow](project-workflow)
 - [Project Structure](#project-structure)
 - [Data Extraction and Transformation](#data-extraction-and-transformation)
 - [Data Loading into Database](#data-loading-into-database)
 - [Application Front-End](#application-front-end)
 - [Data Analysis and Visualization](#data-analysis-and-visualization)
+- [Reference](#reference)
 
 ## Business Use Case
 Any financial institution that wants to improve operational efficiency and gain real-time customer insights can benefit from an optimized data processing pipeline like the one we built. This solution is particularly valuable for banks and credit card companies but can also be adapted for other industries dealing with large volumes of transactional data. Here are a couple of specific business use cases:
@@ -32,6 +34,9 @@ Any financial institution that wants to improve operational efficiency and gain 
 - SQL (MySQL)
 - PySpark
 - API
+
+## Project Workflow
+<img width="438" alt="image" src="https://github.com/user-attachments/assets/6ea2e4ad-c5ac-4e59-9fc0-02babd546b8e">
 
 ## Project Structure
 - `data/`: Contains the JSON files for Credit Card dataset.
@@ -59,6 +64,7 @@ Transformed data is loaded into a MySQL database named creditcard_capstone with 
 - `CDW_SAPP_loan_application`
 
 Video shows database and tables in MySQL:
+https://github.com/user-attachments/assets/a572fa62-11ad-408e-907b-d1488982cfbe
 
 ## Application Front-End
 A console-based menu-driven application is created to interact with the data. The application includes the following modules:
@@ -112,4 +118,5 @@ February 2018 (3959), May 2018 (3946), and October 2018 (3946) have the highest 
 Branch code 25 leads with a total value of $4,370.18 in healthcare transactions.
 ![Highest Healthcare Transactions Branch](image/5_4_highest_healthcare_transactions_branch.png)
 
+## Reference
 
