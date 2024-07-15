@@ -160,4 +160,5 @@ https://www.analyticsvidhya.com/blog/2021/08/understanding-bar-plots-in-python-b
 How to make a Todo List CLI application using Python ?\
 https://www.geeksforgeeks.org/how-to-make-a-todo-list-cli-application-using-python/
 
-Per Scholas:\
+Per Scholas Data Engineering Program:\
+https://perscholas.org/
