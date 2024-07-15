@@ -13,12 +13,15 @@ This project involves the following steps:
 - Chun-hao (Larry) Chen &nbsp;<a href="https://www.linkedin.com/in/larrychencpa/"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" style="height: 1em; width:auto;"/></a> &nbsp; <a href="https://github.com/LarryChenCode"> <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" style="height: 1em; width: auto;"/></a>
 
 ## Table of Contents
+- [Business Problem Statement](#business-problem-statement)
 - [Technologies Used](#technologies-used)
 - [Project Structure](#project-structure)
 - [Data Extraction and Transformation](#data-extraction-and-transformation)
 - [Data Loading into Database](#data-loading-into-database)
 - [Application Front-End](#application-front-end)
 - [Data Analysis and Visualization](#data-analysis-and-visualization)
+
+## Business Problem Statement
 
 ## Technologies Used
 - Python (Pandas, Matplotlib, Seaborn, FPDF)
@@ -72,28 +75,29 @@ The project includes several visualizations to analyze the data. Below are the v
 
 ### Transaction Type Analysis
 ![Transaction Type Count](image/3_1_transaction_type_count.png)
-Plot showing which transaction type has the highest transaction count.
+The count of transactions for different transaction types, with the top three being bills (6861), healthcare (6723), and test (6683).
 
 ### Top 10 States by Customer Count
 ![Top 10 States by Customers](image/3_2_top_10_states_customers.png)
-Plot showing the top 10 states with the highest number of customers.
+The number of customers in the top 10 states, with New York (96) leading.
 
 ### Top 10 Customers by Transaction Sum
 ![Top 10 Customers by Transaction Sum](image/3_3_top_10_customers_transaction_sum.png)
-Plot showing the top 10 customers with the highest transaction sums.
+The total transaction sum for the top 10 customers, with Daly Leticia Fly ($5,633.07) having the highest transaction sum.
 
 ### Self-Employed Approval Percentage
 ![Self-Employed Approval Percentage](image/5_1_self_employed_approval_percentage_pie.png)
-Plot showing the percentage of applications approved for self-employed applicants.
+The approval rate of loan applications for self-employed applicants, with 65.71% approved and 34.29% not approved.
 
 ### Married Male Rejection Percentage
 ![Married Male Rejection Percentage](image/5_2_married_male_rejection_percentage_pie.png)
-Plot showing the rejection percentage for married male applicants.
+The rejection rate of loan applications for married male applicants, with 28.43% rejected and 71.57% not rejected.
 
 ### Top Three Months by Transaction Volume
 ![Top Three Months by Transaction Volume](image/5_3_top_three_months_transaction_volume.png)
-Plot showing the top three months with the largest volume of transactions.
+The top three months with the largest transaction volumes, showing February 2018 (3959), May 2018 (3946), and October 2018 (3946).
 
 ### The Branch with the Highest Healthcare Transactions Amount
 ![Highest Healthcare Transactions Branch](image/5_4_highest_healthcare_transactions_branch.png)
-Plot showing which branch processed the highest total value of healthcare transactions.
+The branch with the highest total value of healthcare transactions, with branch code 25 ($4,370.18) leading.
+
