@@ -129,14 +129,14 @@ Branch code 25 leads with a total value of $4,370.18 in healthcare transactions.
 ![Highest Healthcare Transactions Branch](image/5_4_highest_healthcare_transactions_branch.png)
 
 ## Reference
-PySpark:\n
+PySpark:\
 https://spark.apache.org/docs/latest/api/python/index.html
 
-Apache Spark - Spark SQL:\n
+Apache Spark - Spark SQL:\
 https://spark.apache.org/sql/
 
-Analyzing and Visualization:\n
+Analyzing and Visualization:\
 https://www.analyticsvidhya.com/blog/2021/08/understanding-bar-plots-in-python-beginnersguide-to-data-visualization/
 
-How to make a Todo List CLI application using Python ?\n
+How to make a Todo List CLI application using Python ?\
 https://www.geeksforgeeks.org/how-to-make-a-todo-list-cli-application-using-python/
