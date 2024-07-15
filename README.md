@@ -3,12 +3,6 @@
 ## Overview
 This capstone project demonstrates the knowledge and abilities acquired throughout the Data Engineering course. The project involves managing an ETL process for a Loan Application dataset and a Credit Card dataset using Python, SQL, Apache Spark, and various Python libraries for data visualization and analysis.
 
-This project involves the following steps:
-1. Preprocessing of datasets (Loan Application and Credit Card).
-2. Data extraction, transformation, and loading using Python (Pandas, advanced modules like Matplotlib, Seaborn, FPDF), SQL, and PySpark.
-3. Creating a console-based application for data management and visualization.
-4. Developing visualizations and analytics using Python libraries.
-
 ## Authors
 - Chun-hao (Larry) Chen &nbsp;<a href="https://www.linkedin.com/in/larrychencpa/"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" style="height: 1em; width:auto;"/></a> &nbsp; <a href="https://github.com/LarryChenCode"> <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" style="height: 1em; width: auto;"/></a>
 
@@ -36,6 +30,12 @@ Any financial institution that wants to improve operational efficiency and gain 
 - API
 
 ## Project Workflow
+### This project involves the following steps:
+1. Data extraction, transformation, and loading using Python (Pandas, advanced modules like Matplotlib, Seaborn, FPDF), SQL, and PySpark.
+2. Creating a console-based application for data management and visualization.
+3. Developing visualizations and analytics using Python libraries.
+
+### Workflow Diagram
 <img width="438" alt="image" src="https://github.com/user-attachments/assets/6ea2e4ad-c5ac-4e59-9fc0-02babd546b8e">
 
 ## Project Structure
@@ -48,6 +48,7 @@ Any financial institution that wants to improve operational efficiency and gain 
 ## Data Extraction and Transformation
 The project reads data from the JSON files and API:
 
+### Data: 
 1. JSON files:
     - `CDW_SAPP_BRANCH.JSON`
     - `CDW_SAPP_CREDITCARD.JSON`
@@ -56,7 +57,7 @@ The project reads data from the JSON files and API:
 
 The data extraction and transformation processes were conducted using PySpark, following the specifications outlined in the [mapping document](https://docs.google.com/spreadsheets/d/1t8UxBrUV6dxx0pM1VIIGZpSf4IKbzjdJ/edit?usp=sharing&ouid=112747427162279359902&rtpof=true&sd=true). Schemas were defined for each file, and data was read into Spark DataFrames.
 
-Schemas code:
+### Schemas code:
 - Data from Json:
 ![image](https://github.com/user-attachments/assets/fe1c17e1-5071-4abd-9990-f03c8817452c)
 
