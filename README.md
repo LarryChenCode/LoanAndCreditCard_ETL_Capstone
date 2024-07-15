@@ -54,7 +54,13 @@ The project reads data from the JSON files and API:
     - `CDW_SAPP_CUSTOMER.JSON`
 2. API Endpoint: https://raw.githubusercontent.com/platformps/LoanDataset/main/loan_data.json
 
-Data extraction and transformation are performed using PySpark. Schemas are defined for each file, and data is read into Spark DataFrames.
+The data extraction and transformation processes were conducted using PySpark, following the specifications outlined in the [mapping document](https://docs.google.com/spreadsheets/d/1t8UxBrUV6dxx0pM1VIIGZpSf4IKbzjdJ/edit?usp=sharing&ouid=112747427162279359902&rtpof=true&sd=true). Schemas were defined for each file, and data was read into Spark DataFrames.
+
+Schemas code:
+- Data from Json:
+
+- Data from API:
+
 
 ## Data Loading into Database
 Transformed data is loaded into a MySQL database named creditcard_capstone with the following tables:
@@ -63,7 +69,7 @@ Transformed data is loaded into a MySQL database named creditcard_capstone with 
 - `CDW_SAPP_CUSTOMER`
 - `CDW_SAPP_loan_application`
 
-Video shows database and tables in MySQL:
+Database and tables in MySQL:
 
 https://github.com/user-attachments/assets/a572fa62-11ad-408e-907b-d1488982cfbe
 
@@ -91,33 +97,47 @@ https://github.com/user-attachments/assets/c7b90c11-1d54-49c8-84b9-3cd9486b3ae8
 The data analysis revealed key transaction patterns, with bills, healthcare, and test transactions being the most frequent. New York had the highest number of customers, while Daly Leticia Fly led in transaction sums. Loan approval rates for self-employed individuals were 65.71%, with 28.43% of married male applicants facing rejection. February, May, and October 2018 saw the highest transaction volumes, and branch code 25 handled the most healthcare transactions.
 
 ### Graphs: 
-#### Transaction Type Analysis
+### Transaction Type Analysis
 The top transaction types are bills (6861), healthcare (6723), and tests (6683).
 ![Transaction Type Count](image/3_1_transaction_type_count.png)
 
-#### Top 10 States by Customer Count
+### Top 10 States by Customer Count
 New York leads with 96 customers.
 ![Top 10 States by Customers](image/3_2_top_10_states_customers.png)
 
-#### Top 10 Customers by Transaction Sum
+### Top 10 Customers by Transaction Sum
 Daly Leticia Fly has the highest transaction sum of $5,633.07.
 ![Top 10 Customers by Transaction Sum](image/3_3_top_10_customers_transaction_sum.png)
 
-#### Self-Employed Approval Percentage
+### Self-Employed Approval Percentage
 65.71% of loan applications from self-employed applicants are approved.
 ![Self-Employed Approval Percentage](image/5_1_self_employed_approval_percentage_pie.png)
 
-#### Married Male Rejection Percentage
+### Married Male Rejection Percentage
 28.43% of loan applications from married male applicants are rejected.
 ![Married Male Rejection Percentage](image/5_2_married_male_rejection_percentage_pie.png)
 
-#### Top Three Months by Transaction Volume
+### Top Three Months by Transaction Volume
 February 2018 (3959), May 2018 (3946), and October 2018 (3946) have the highest transaction volumes.
 ![Top Three Months by Transaction Volume](image/5_3_top_three_months_transaction_volume.png)
 
-#### The Branch with the Highest Healthcare Transactions Amount
+### The Branch with the Highest Healthcare Transactions Amount
 Branch code 25 leads with a total value of $4,370.18 in healthcare transactions.
 ![Highest Healthcare Transactions Branch](image/5_4_highest_healthcare_transactions_branch.png)
 
 ## Reference
+PySpark:
 
+https://spark.apache.org/docs/latest/api/python/index.html
+
+Apache Spark - Spark SQL:
+
+https://spark.apache.org/sql/
+
+Analyzing and Visualization:
+
+https://www.analyticsvidhya.com/blog/2021/08/understanding-bar-plots-in-python-beginnersguide-to-data-visualization/
+
+How to make a Todo List CLI application using Python ?
+
+https://www.geeksforgeeks.org/how-to-make-a-todo-list-cli-application-using-python/
