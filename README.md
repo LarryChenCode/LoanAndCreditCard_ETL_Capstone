@@ -36,7 +36,7 @@ Any financial institution that wants to improve operational efficiency and gain 
 3. Developing visualizations and analytics using Python libraries.
 
 ### Workflow Diagram
-<img width="438" alt="image" src="https://github.com/user-attachments/assets/6ea2e4ad-c5ac-4e59-9fc0-02babd546b8e">
+<!-- <img width="438" alt="image" src="https://github.com/user-attachments/assets/6ea2e4ad-c5ac-4e59-9fc0-02babd546b8e"> -->
 
 ```mermaid
 graph TB
