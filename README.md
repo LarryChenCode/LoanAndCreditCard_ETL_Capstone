@@ -58,14 +58,14 @@ A console-based menu-driven application is created to interact with the data. Th
 - Query transactions based on zip code and month-year.
 - Display and export transactions.
 
-[Transaction Details Module Demo](https://youtu.be/O0LZaB-5PVw)
+https://github.com/LarryChenCode/LoanAndCreditCard_ETL_Capstone/blob/testing/video/transaction_details_module_demo_0715.mp4
 
 ### Customer Details Module:
 - Check and modify existing account details.
 - Generate monthly bills and export to PDF and CSV.
 - Display transactions between two dates and export to CSV.
 
-[Customer Details Module Demo](https://youtu.be/PTTgJ7citmA)
+https://github.com/LarryChenCode/LoanAndCreditCard_ETL_Capstone/blob/testing/video/transaction_details_module_demo_0715.mp4
 
 ## Data Analysis and Visualization
 The project includes several visualizations to analyze the data. Below are the visualizations created:
