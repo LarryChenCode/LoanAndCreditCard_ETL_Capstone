@@ -60,6 +60,7 @@ graph TB
     G[Python Program (Frontend console)]
     H[Data analyzing and Visualization]
   end
+```
 
 ## Project Structure
 - `data/`: Contains the JSON files for Credit Card dataset.
