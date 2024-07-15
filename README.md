@@ -13,7 +13,7 @@ This project involves the following steps:
 - Chun-hao (Larry) Chen &nbsp;<a href="https://www.linkedin.com/in/larrychencpa/"><img src="https://upload.wikimedia.org/wikipedia/commons/c/ca/LinkedIn_logo_initials.png" alt="LinkedIn" style="height: 1em; width:auto;"/></a> &nbsp; <a href="https://github.com/LarryChenCode"> <img src="https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg" alt="GitHub" style="height: 1em; width: auto;"/></a>
 
 ## Table of Contents
-- [Business Problem Statement](#business-problem-statement)
+- [Business Use Case](#business-use-case)
 - [Technologies Used](#technologies-used)
 - [Project Structure](#project-structure)
 - [Data Extraction and Transformation](#data-extraction-and-transformation)
@@ -21,7 +21,11 @@ This project involves the following steps:
 - [Application Front-End](#application-front-end)
 - [Data Analysis and Visualization](#data-analysis-and-visualization)
 
-## Business Problem Statement
+## Business Use Case
+Any financial institution that wants to improve operational efficiency and gain real-time customer insights can benefit from an optimized data processing pipeline like the one we built. This solution is particularly valuable for banks and credit card companies but can also be adapted for other industries dealing with large volumes of transactional data. Here are a couple of specific business use cases:
+
+- Chase Bank (Banking) - Enhance fraud detection by implementing a real-time data processing pipeline with PySpark and Kafka.
+- American Express (Credit Card Company) - Optimize customer targeting for marketing campaigns using an ETL pipeline and advanced analytics for customer segmentation.
 
 ## Technologies Used
 - Python (Pandas, Matplotlib, Seaborn, FPDF)
@@ -54,50 +58,58 @@ Transformed data is loaded into a MySQL database named creditcard_capstone with 
 - `CDW_SAPP_CUSTOMER`
 - `CDW_SAPP_loan_application`
 
+Video shows database and tables in MySQL:
+
 ## Application Front-End
 A console-based menu-driven application is created to interact with the data. The application includes the following modules:
 
 ### Transaction Details Module:
+#### Functions:
 - Query transactions based on zip code and month-year.
 - Display and export transactions.
 
+#### Demo video
 https://github.com/user-attachments/assets/452a4f85-2337-4e48-9a01-b9ad00cba9b1
 
 ### Customer Details Module:
+#### Functions:
 - Check and modify existing account details.
 - Generate monthly bills and export to PDF and CSV.
 - Display transactions between two dates and export to CSV.
 
+#### Demo video
 https://github.com/user-attachments/assets/c7b90c11-1d54-49c8-84b9-3cd9486b3ae8
 
 ## Data Analysis and Visualization
-The project includes several visualizations to analyze the data. Below are the visualizations created:
+The data analysis revealed key transaction patterns, with bills, healthcare, and test transactions being the most frequent. New York had the highest number of customers, while Daly Leticia Fly led in transaction sums. Loan approval rates for self-employed individuals were 65.71%, with 28.43% of married male applicants facing rejection. February, May, and October 2018 saw the highest transaction volumes, and branch code 25 handled the most healthcare transactions.
 
-### Transaction Type Analysis
+### Graphs: 
+#### Transaction Type Analysis
+The top transaction types are bills (6861), healthcare (6723), and tests (6683).
 ![Transaction Type Count](image/3_1_transaction_type_count.png)
-The count of transactions for different transaction types, with the top three being bills (6861), healthcare (6723), and test (6683).
 
-### Top 10 States by Customer Count
+#### Top 10 States by Customer Count
+New York leads with 96 customers.
 ![Top 10 States by Customers](image/3_2_top_10_states_customers.png)
-The number of customers in the top 10 states, with New York (96) leading.
 
-### Top 10 Customers by Transaction Sum
+#### Top 10 Customers by Transaction Sum
+Daly Leticia Fly has the highest transaction sum of $5,633.07.
 ![Top 10 Customers by Transaction Sum](image/3_3_top_10_customers_transaction_sum.png)
-The total transaction sum for the top 10 customers, with Daly Leticia Fly ($5,633.07) having the highest transaction sum.
 
-### Self-Employed Approval Percentage
+#### Self-Employed Approval Percentage
+65.71% of loan applications from self-employed applicants are approved.
 ![Self-Employed Approval Percentage](image/5_1_self_employed_approval_percentage_pie.png)
-The approval rate of loan applications for self-employed applicants, with 65.71% approved and 34.29% not approved.
 
-### Married Male Rejection Percentage
+#### Married Male Rejection Percentage
+28.43% of loan applications from married male applicants are rejected.
 ![Married Male Rejection Percentage](image/5_2_married_male_rejection_percentage_pie.png)
-The rejection rate of loan applications for married male applicants, with 28.43% rejected and 71.57% not rejected.
 
-### Top Three Months by Transaction Volume
+#### Top Three Months by Transaction Volume
+February 2018 (3959), May 2018 (3946), and October 2018 (3946) have the highest transaction volumes.
 ![Top Three Months by Transaction Volume](image/5_3_top_three_months_transaction_volume.png)
-The top three months with the largest transaction volumes, showing February 2018 (3959), May 2018 (3946), and October 2018 (3946).
 
-### The Branch with the Highest Healthcare Transactions Amount
+#### The Branch with the Highest Healthcare Transactions Amount
+Branch code 25 leads with a total value of $4,370.18 in healthcare transactions.
 ![Highest Healthcare Transactions Branch](image/5_4_highest_healthcare_transactions_branch.png)
-The branch with the highest total value of healthcare transactions, with branch code 25 ($4,370.18) leading.
+
 
