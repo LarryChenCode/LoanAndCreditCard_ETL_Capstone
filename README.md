@@ -9,7 +9,7 @@ This capstone project demonstrates the knowledge and abilities acquired througho
 ## Table of Contents
 - [Business Use Case](#business-use-case)
 - [Technologies Used](#technologies-used)
-- [Project Workflow](project-workflow)
+- [Project Workflow](#project-workflow)
 - [Project Structure](#project-structure)
 - [Data Extraction and Transformation](#data-extraction-and-transformation)
 - [Data Loading into Database](#data-loading-into-database)
@@ -60,7 +60,6 @@ The data extraction and transformation processes were conducted using PySpark, f
 ### Schemas code:
 - Data from Json:
 ![image](https://github.com/user-attachments/assets/fe1c17e1-5071-4abd-9990-f03c8817452c)
-
 - Data from API:
 ![image](https://github.com/user-attachments/assets/9940a7c4-6758-457c-9a7e-94cf5c76034c)
 
@@ -73,7 +72,6 @@ Transformed data is loaded into a MySQL database named creditcard_capstone with 
 - `CDW_SAPP_loan_application`
 
 Database and tables in MySQL:
-
 https://github.com/user-attachments/assets/a572fa62-11ad-408e-907b-d1488982cfbe
 
 ## Application Front-End
@@ -130,17 +128,13 @@ Branch code 25 leads with a total value of $4,370.18 in healthcare transactions.
 
 ## Reference
 PySpark:
-
 https://spark.apache.org/docs/latest/api/python/index.html
 
 Apache Spark - Spark SQL:
-
 https://spark.apache.org/sql/
 
 Analyzing and Visualization:
-
 https://www.analyticsvidhya.com/blog/2021/08/understanding-bar-plots-in-python-beginnersguide-to-data-visualization/
 
 How to make a Todo List CLI application using Python ?
-
 https://www.geeksforgeeks.org/how-to-make-a-todo-list-cli-application-using-python/
