@@ -58,7 +58,6 @@ A console-based menu-driven application is created to interact with the data. Th
 - Query transactions based on zip code and month-year.
 - Display and export transactions.
 
-[![Transaction Details Module Demo](https://img.youtube.com/vi/O0LZaB-5PVw/0.jpg)](https://youtu.be/O0LZaB-5PVw)
 
 
 ### Customer Details Module:
@@ -66,7 +65,7 @@ A console-based menu-driven application is created to interact with the data. Th
 - Generate monthly bills and export to PDF and CSV.
 - Display transactions between two dates and export to CSV.
 
-[![Customer Details Module Demo](https://img.youtube.com/vi/PTTgJ7citmA/0.jpg)](https://youtu.be/PTTgJ7citmA)
+
 
 ## Data Analysis and Visualization
 The project includes several visualizations to analyze the data. Below are the visualizations created:
