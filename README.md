@@ -53,7 +53,8 @@ The project reads data from the JSON files and API:
     - `CDW_SAPP_BRANCH.JSON`
     - `CDW_SAPP_CREDITCARD.JSON`
     - `CDW_SAPP_CUSTOMER.JSON`
-2. API Endpoint: https://raw.githubusercontent.com/platformps/LoanDataset/main/loan_data.json
+2. API Endpoint: 
+https://raw.githubusercontent.com/platformps/LoanDataset/main/loan_data.json
 
 The data extraction and transformation processes were conducted using PySpark, following the specifications outlined in the [mapping document](https://docs.google.com/spreadsheets/d/1t8UxBrUV6dxx0pM1VIIGZpSf4IKbzjdJ/edit?usp=sharing&ouid=112747427162279359902&rtpof=true&sd=true). Schemas were defined for each file, and data was read into Spark DataFrames.
 
@@ -128,14 +129,14 @@ Branch code 25 leads with a total value of $4,370.18 in healthcare transactions.
 ![Highest Healthcare Transactions Branch](image/5_4_highest_healthcare_transactions_branch.png)
 
 ## Reference
-PySpark:
+PySpark:\n
 https://spark.apache.org/docs/latest/api/python/index.html
 
-Apache Spark - Spark SQL:
+Apache Spark - Spark SQL:\n
 https://spark.apache.org/sql/
 
-Analyzing and Visualization:
+Analyzing and Visualization:\n
 https://www.analyticsvidhya.com/blog/2021/08/understanding-bar-plots-in-python-beginnersguide-to-data-visualization/
 
-How to make a Todo List CLI application using Python ?
+How to make a Todo List CLI application using Python ?\n
 https://www.geeksforgeeks.org/how-to-make-a-todo-list-cli-application-using-python/
