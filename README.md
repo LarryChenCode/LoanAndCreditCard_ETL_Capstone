@@ -26,7 +26,7 @@ Any financial institution that wants to improve operational efficiency and gain 
 ## Technologies Used
 - Python (Pandas, Matplotlib, Seaborn, FPDF)
 - SQL (MySQL)
-- PySpark
+- Apache Spark (PySpark)
 - API
 
 ## Project Workflow
