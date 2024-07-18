@@ -598,6 +598,8 @@ def plot_transaction_type_count(connection):
     plt.ylabel('Transaction Count')
     plt.xticks(rotation=45)
     
+    plt.ylim(6500, df['transaction_count'].max() + 100)
+    
     for p in ax.patches:
         ax.annotate(f'{int(p.get_height())}', (p.get_x() + p.get_width() / 2., p.get_height()),
                     ha='center', va='center', xytext=(0, 9), textcoords='offset points')
@@ -649,28 +651,31 @@ def plot_top_states_with_customers(connection):
 def plot_top_customers_by_transaction_sum(connection):
     query = """
     SELECT 
-        cc.CUST_SSN, 
+        cc.CREDIT_CARD_NO, 
         ROUND(SUM(cc.TRANSACTION_VALUE), 2) AS total_transaction_sum,
         CONCAT(c.LAST_NAME, ' ', c.MIDDLE_NAME, ' ', c.FIRST_NAME) AS full_name
     FROM CDW_SAPP_CREDIT_CARD cc
     JOIN CDW_SAPP_CUSTOMER c ON cc.CUST_SSN = c.SSN
-    GROUP BY cc.CUST_SSN, c.LAST_NAME, c.MIDDLE_NAME, c.FIRST_NAME
+    GROUP BY cc.CREDIT_CARD_NO, c.LAST_NAME, c.MIDDLE_NAME, c.FIRST_NAME
     ORDER BY total_transaction_sum DESC
     LIMIT 10
     """
     df = pd.read_sql(query, connection)
     
-    df['SSN_Name'] = df['CUST_SSN'].astype(str) + "\n" + df['full_name']
+    # Extract the last 4 digits of the credit card number and combine with the full name
+    df['Card_Name'] = '****' + df['CREDIT_CARD_NO'].astype(str).str[-4:] + "\n" + df['full_name']
     
-    df['SSN_Name'] = pd.Categorical(df['SSN_Name'], categories=df['SSN_Name'], ordered=True)
+    df['Card_Name'] = pd.Categorical(df['Card_Name'], categories=df['Card_Name'], ordered=True)
 
     plt.figure(figsize=(14, 8))
-    ax = sns.barplot(x='SSN_Name', y='total_transaction_sum', data=df, palette='viridis')
+    ax = sns.barplot(x='Card_Name', y='total_transaction_sum', data=df, palette='viridis')
     plt.title('Top 10 Customers by Transaction Sum', fontsize=16)
-    plt.xlabel('Customer SSN - Full Name', fontsize=14)
+    plt.xlabel('Credit Card - Full Name', fontsize=14)
     plt.ylabel('Total Transaction Sum ($)', fontsize=14)
     plt.xticks(rotation=45, ha='right', fontsize=12)
     plt.yticks(fontsize=12)
+    
+    plt.ylim(5000, df['total_transaction_sum'].max() + 100)
 
     for p in ax.patches:
         ax.annotate(f'${p.get_height():,.2f}', (p.get_x() + p.get_width() / 2., p.get_height()),
@@ -684,6 +689,7 @@ def plot_top_customers_by_transaction_sum(connection):
     plt.savefig(filename)
     plt.show()
     print(f"Visualization saved as {filename}")
+
 
 
 # 4. Functional Requirements - LOAN Application Dataset
@@ -831,6 +837,8 @@ def plot_top_three_months_transaction_volume(connection):
     plt.xlabel('Year-Month')
     plt.ylabel('Transaction Volume')
     
+    plt.ylim(3900, df['transaction_count'].max() + 10)
+    
     for index, row in df.iterrows():
         barplot.text(index, row.transaction_count, row.transaction_count, color='black', ha="center", va="bottom")
 
@@ -851,7 +859,7 @@ def plot_highest_healthcare_transactions_branch(connection):
     WHERE TRANSACTION_TYPE = 'Healthcare'
     GROUP BY BRANCH_CODE
     ORDER BY total_value DESC
-    LIMIT 1
+    LIMIT 3
     """
     df = pd.read_sql(query, connection)
 
@@ -860,6 +868,8 @@ def plot_highest_healthcare_transactions_branch(connection):
     plt.title('Branch with Highest Total Value of Healthcare Transactions')
     plt.xlabel('Branch Code')
     plt.ylabel('Total Transaction Value ($)')
+    
+    plt.ylim(3900, df['total_value'].max() + 100)
     
     for index, row in df.iterrows():
         barplot.text(index, row.total_value, f"${row.total_value:,.2f}", color='black', ha="center", va="bottom")
